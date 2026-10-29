@@ -7235,6 +7235,37 @@ body {
   color: #0369a1;
 }
 
+.huaraz-feedback-banner.error {
+  background: rgba(239, 68, 68, 0.16);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #b91c1c;
+}
+
+.huaraz-demo-tips {
+  text-align: center;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.demo-hint-click {
+  display: inline-block;
+  font-size: 0.74rem;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px dashed rgba(2, 132, 199, 0.4);
+  border-radius: 9999px;
+  padding: 4px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-hint-click:hover {
+  background: rgba(255, 255, 255, 0.8);
+  color: #0284c7;
+  border-color: #0284c7;
+  transform: translateY(-1px);
+}
+
 /* Formulario */
 .huaraz-login-form {
   display: flex;

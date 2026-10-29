@@ -11,40 +11,111 @@ import {
   ArrowRight,
   Camera,
   CheckCircle2,
+  AlertCircle,
   X,
   Compass,
-  Sparkles
+  FileText,
+  Phone
 } from 'lucide-react';
 import { useAuth, DEMO_CLIENTS } from '../context/AuthContext';
 
 export default function Login() {
-  const { loginAsAdmin, loginAsUser } = useAuth();
-  const [selectedRole, setSelectedRole] = useState('admin'); // 'admin' | 'usuario'
-  const [email, setEmail] = useState('admin@huaraztours.com');
-  const [password, setPassword] = useState('admin123');
+  const { loginAsAdmin, loginAsUser, loginWithCredentials, registerUser, registeredUsers } = useAuth();
+  
+  // Modo de pantalla: 'login' (Iniciar sesión) o 'register' (Registrarse)
+  const [authMode, setAuthMode] = useState('login');
+  // Rol seleccionado en modo login: 'admin' o 'usuario'
+  const [selectedRole, setSelectedRole] = useState('admin');
+  
+  // CAMPOS VACÍOS POR DEFECTO PARA QUE LOS LLENE EL USUARIO O EL ADMIN
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  
+  // Campos adicionales para el registro de nuevos usuarios
+  const [nombre, setNombre] = useState('');
+  const [dni, setDni] = useState('');
+  const [telefono, setTelefono] = useState('');
+  
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [feedback, setFeedback] = useState(null);
   const [showTouristDrawer, setShowTouristDrawer] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(DEMO_CLIENTS[0]);
 
-  // Selección de rol (Administrador vs Usuario / Turista)
+  // Cambio de Rol en modo Login
   const handleRoleChange = (role) => {
     setSelectedRole(role);
     setFeedback(null);
-    if (role === 'admin') {
-      setEmail('admin@huaraztours.com');
-      setPassword('admin123');
-      setShowTouristDrawer(false);
+    setEmail('');
+    setPassword('');
+    setShowTouristDrawer(false);
+  };
+
+  // Cambio a modo Registro
+  const handleGoToRegister = () => {
+    setAuthMode('register');
+    setSelectedRole('usuario');
+    setFeedback(null);
+    setEmail('');
+    setPassword('');
+    setNombre('');
+    setDni('');
+    setTelefono('');
+    setShowTouristDrawer(false);
+  };
+
+  // Cambio a modo Login
+  const handleGoToLogin = () => {
+    setAuthMode('login');
+    setFeedback(null);
+    setEmail('');
+    setPassword('');
+    setShowTouristDrawer(false);
+  };
+
+  // Envío del formulario de Login
+  const handleLoginSubmit = (e) => {
+    e.preventDefault();
+    if (!email.trim()) {
+      setFeedback({ type: 'error', text: 'Por favor ingresa tu correo electrónico.' });
+      return;
+    }
+    const res = loginWithCredentials(email, password, selectedRole);
+    if (res.success) {
+      setFeedback({ type: 'success', text: res.message });
     } else {
-      setEmail(selectedClient ? selectedClient.correo : 'maria.lopez@email.com');
-      setPassword('turista123');
+      setFeedback({ type: 'error', text: res.message });
     }
   };
 
-  // Selección rápida de perfil de turista
+  // Envío del formulario de Registro
+  const handleRegisterSubmit = (e) => {
+    e.preventDefault();
+    if (!nombre.trim() || !email.trim()) {
+      setFeedback({ type: 'error', text: 'Por favor completa al menos tu nombre y correo electrónico.' });
+      return;
+    }
+    if (!password.trim()) {
+      setFeedback({ type: 'error', text: 'Por favor ingresa una contraseña para tu cuenta.' });
+      return;
+    }
+
+    const res = registerUser({
+      nombre: nombre.trim(),
+      correo: email.trim(),
+      dni: dni.trim() || '12345678',
+      telefono: telefono.trim(),
+      password: password.trim(),
+    });
+
+    if (res.success) {
+      setFeedback({ type: 'success', text: res.message });
+    } else {
+      setFeedback({ type: 'error', text: res.message });
+    }
+  };
+
+  // Selección rápida de perfiles de prueba
   const handleSelectTourist = (client) => {
-    setSelectedClient(client);
     setEmail(client.correo);
     setPassword('turista123');
     setSelectedRole('usuario');
@@ -53,17 +124,16 @@ export default function Login() {
     setFeedback({ type: 'success', text: res.message });
   };
 
-  // Envío del formulario
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (selectedRole === 'admin') {
-      const res = loginAsAdmin();
-      setFeedback({ type: 'success', text: res.message });
-    } else {
-      const matched = DEMO_CLIENTS.find((c) => c.correo.toLowerCase() === email.toLowerCase());
-      const res = loginAsUser(matched || selectedClient);
-      setFeedback({ type: 'success', text: res.message });
-    }
+  // Rellenar credenciales demo de admin para comodidad si el usuario hace clic en el tip
+  const handleFillDemoAdmin = () => {
+    setEmail('admin@huaraztours.com');
+    setPassword('admin123');
+  };
+
+  // Rellenar credenciales demo de turista si el usuario hace clic en el tip
+  const handleFillDemoTourist = () => {
+    setEmail('maria.lopez@email.com');
+    setPassword('turista123');
   };
 
   const handleForgotPassword = (e) => {
@@ -71,8 +141,8 @@ export default function Login() {
     setFeedback({
       type: 'info',
       text: selectedRole === 'admin'
-        ? 'Credenciales Demo Administrador: admin@huaraztours.com / admin123'
-        : 'Credenciales Demo Turista: ' + (selectedClient?.correo || 'maria.lopez@email.com') + ' / turista123'
+        ? 'Credenciales Administrador: admin@huaraztours.com / admin123'
+        : 'Para entrar como Turista puedes usar maria.lopez@email.com / turista123 o crear tu cuenta.'
     });
   };
 
@@ -85,7 +155,7 @@ export default function Login() {
       {/* Contenedor Principal (2 Columnas) */}
       <div className="huaraz-login-container">
         
-        {/* COLUMNA IZQUIERDA: Marca & Identidad */}
+        {/* COLUMNA IZQUIERDA: Marca & Identidad Huaraz Tours */}
         <div className="huaraz-brand-showcase">
           {/* Logo Oficial de Huaraz Tours */}
           <div className="huaraz-emblem-wrapper">
@@ -154,141 +224,278 @@ export default function Login() {
         {/* COLUMNA DERECHA: Tarjeta Glassmorphism */}
         <div className="huaraz-glass-card">
           
-          {/* Selector de Rol Superior (Tabs) */}
-          <div className="huaraz-role-tabs-grid">
-            <button
-              type="button"
-              className={`huaraz-role-tab-btn ${selectedRole === 'admin' ? 'tab-active' : 'tab-inactive'}`}
-              onClick={() => handleRoleChange('admin')}
-            >
-              <div className="tab-icon-wrap">
-                <ShieldCheck size={18} strokeWidth={2.3} />
-              </div>
-              <div className="tab-text-wrap">
-                <span className="tab-title">Administrador</span>
-                <span className="tab-desc">Gestión & Control</span>
-              </div>
-            </button>
+          {/* MODO 1: INICIAR SESIÓN */}
+          {authMode === 'login' && (
+            <>
+              {/* Selector de Rol Superior (Tabs) */}
+              <div className="huaraz-role-tabs-grid">
+                <button
+                  type="button"
+                  className={`huaraz-role-tab-btn ${selectedRole === 'admin' ? 'tab-active' : 'tab-inactive'}`}
+                  onClick={() => handleRoleChange('admin')}
+                >
+                  <div className="tab-icon-wrap">
+                    <ShieldCheck size={18} strokeWidth={2.3} />
+                  </div>
+                  <div className="tab-text-wrap">
+                    <span className="tab-title">Administrador</span>
+                    <span className="tab-desc">Gestión & Control</span>
+                  </div>
+                </button>
 
-            <button
-              type="button"
-              className={`huaraz-role-tab-btn ${selectedRole === 'usuario' ? 'tab-active' : 'tab-inactive'}`}
-              onClick={() => handleRoleChange('usuario')}
-            >
-              <div className="tab-icon-wrap">
-                <User size={18} strokeWidth={2.3} />
+                <button
+                  type="button"
+                  className={`huaraz-role-tab-btn ${selectedRole === 'usuario' ? 'tab-active' : 'tab-inactive'}`}
+                  onClick={() => handleRoleChange('usuario')}
+                >
+                  <div className="tab-icon-wrap">
+                    <User size={18} strokeWidth={2.3} />
+                  </div>
+                  <div className="tab-text-wrap">
+                    <span className="tab-title">Usuario / Turista</span>
+                    <span className="tab-desc">Exploración & Reservas</span>
+                  </div>
+                </button>
               </div>
-              <div className="tab-text-wrap">
-                <span className="tab-title">Usuario / Turista</span>
-                <span className="tab-desc">Exploración & Reservas</span>
+
+              {/* Encabezado del Formulario */}
+              <div className="huaraz-card-header">
+                <div className="heading-title-row">
+                  <Mountain size={28} strokeWidth={2.2} className="heading-mountain-icon" />
+                  <h2 className="heading-title-text">Iniciar sesión</h2>
+                </div>
+                <div className="heading-subtitle-row">
+                  <span className="heading-line" />
+                  <span className="heading-subtitle-text">Accede a tu cuenta para continuar</span>
+                  <span className="heading-line" />
+                </div>
               </div>
-            </button>
-          </div>
 
-          {/* Encabezado del Formulario */}
-          <div className="huaraz-card-header">
-            <div className="heading-title-row">
-              <Mountain size={28} strokeWidth={2.2} className="heading-mountain-icon" />
-              <h2 className="heading-title-text">Iniciar sesión</h2>
-            </div>
-            <div className="heading-subtitle-row">
-              <span className="heading-line" />
-              <span className="heading-subtitle-text">Accede a tu cuenta para continuar</span>
-              <span className="heading-line" />
-            </div>
-          </div>
+              {/* Feedback de estado */}
+              {feedback && (
+                <div className={`huaraz-feedback-banner ${feedback.type}`}>
+                  {feedback.type === 'error' ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+                  <span>{feedback.text}</span>
+                </div>
+              )}
 
-          {/* Feedback de estado */}
-          {feedback && (
-            <div className={`huaraz-feedback-banner ${feedback.type}`}>
-              <CheckCircle2 size={16} />
-              <span>{feedback.text}</span>
-            </div>
+              {/* Formulario de Login */}
+              <form onSubmit={handleLoginSubmit} className="huaraz-login-form">
+                {/* Input de Correo (Vacío por defecto) */}
+                <div className="huaraz-input-pill">
+                  <Mail size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type="email"
+                    placeholder="Correo Electrónico"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-pill-field"
+                    required
+                  />
+                </div>
+
+                {/* Input de Contraseña (Vacío por defecto) */}
+                <div className="huaraz-input-pill">
+                  <Lock size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-pill-field"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="input-pill-eye-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label="Ver u ocultar contraseña"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+
+                {/* Opciones: Recordarme / Olvidaste contraseña */}
+                <div className="huaraz-options-row">
+                  <label className="huaraz-checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="huaraz-checkbox-input"
+                    />
+                    <span>Recordarme</span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="huaraz-forgot-link"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                </div>
+
+                {/* Botón Principal Ingresar */}
+                <button type="submit" className="huaraz-btn-submit">
+                  <ArrowRight size={20} strokeWidth={2.4} className="btn-arrow-icon" />
+                  <span>Ingresar</span>
+                </button>
+
+                {/* Ayudas sutiles de demo al hacer clic */}
+                <div className="huaraz-demo-tips">
+                  {selectedRole === 'admin' ? (
+                    <span onClick={handleFillDemoAdmin} className="demo-hint-click">
+                      💡 ¿Probar Admin demo? Rellenar <strong>admin@huaraztours.com</strong>
+                    </span>
+                  ) : (
+                    <span onClick={handleFillDemoTourist} className="demo-hint-click">
+                      💡 ¿Probar Turista demo? Rellenar <strong>maria.lopez@email.com</strong>
+                    </span>
+                  )}
+                </div>
+
+                {/* Separador de Registro */}
+                <div className="huaraz-card-divider">
+                  ¿No tienes una cuenta?
+                </div>
+
+                {/* Botón Registrarse (Abre el formulario de registro) */}
+                <button
+                  type="button"
+                  className="huaraz-btn-register"
+                  onClick={handleGoToRegister}
+                >
+                  <UserPlus size={18} strokeWidth={2.2} />
+                  <span>Registrarse</span>
+                </button>
+              </form>
+            </>
           )}
 
-          {/* Formulario de Login */}
-          <form onSubmit={handleSubmit} className="huaraz-login-form">
-            {/* Input de Correo */}
-            <div className="huaraz-input-pill">
-              <Mail size={18} strokeWidth={2.2} className="input-pill-icon" />
-              <input
-                type="email"
-                placeholder="Correo Electrónico"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="input-pill-field"
-                required
-              />
-            </div>
+          {/* MODO 2: REGISTRARSE (Crear cuenta y entrar) */}
+          {authMode === 'register' && (
+            <>
+              {/* Encabezado de Registro */}
+              <div className="huaraz-card-header">
+                <div className="heading-title-row">
+                  <UserPlus size={28} strokeWidth={2.2} className="heading-mountain-icon" />
+                  <h2 className="heading-title-text">Crear Cuenta</h2>
+                </div>
+                <div className="heading-subtitle-row">
+                  <span className="heading-line" />
+                  <span className="heading-subtitle-text">Regístrate como turista para explorar y reservar</span>
+                  <span className="heading-line" />
+                </div>
+              </div>
 
-            {/* Input de Contraseña */}
-            <div className="huaraz-input-pill">
-              <Lock size={18} strokeWidth={2.2} className="input-pill-icon" />
-              <input
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Contraseña"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input-pill-field"
-                required
-              />
-              <button
-                type="button"
-                className="input-pill-eye-btn"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label="Ver u ocultar contraseña"
-              >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
+              {/* Feedback de estado */}
+              {feedback && (
+                <div className={`huaraz-feedback-banner ${feedback.type}`}>
+                  {feedback.type === 'error' ? <AlertCircle size={16} /> : <CheckCircle2 size={16} />}
+                  <span>{feedback.text}</span>
+                </div>
+              )}
 
-            {/* Opciones: Recordarme / Olvidaste contraseña */}
-            <div className="huaraz-options-row">
-              <label className="huaraz-checkbox-label">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="huaraz-checkbox-input"
-                />
-                <span>Recordarme</span>
-              </label>
+              {/* Formulario de Registro */}
+              <form onSubmit={handleRegisterSubmit} className="huaraz-login-form">
+                {/* Nombre Completo */}
+                <div className="huaraz-input-pill">
+                  <User size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type="text"
+                    placeholder="Nombre Completo"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    className="input-pill-field"
+                    required
+                  />
+                </div>
 
-              <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="huaraz-forgot-link"
-              >
-                ¿Olvidaste tu contraseña?
-              </button>
-            </div>
+                {/* DNI / Documento */}
+                <div className="huaraz-input-pill">
+                  <FileText size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type="text"
+                    placeholder="DNI o Documento de Identidad"
+                    value={dni}
+                    onChange={(e) => setDni(e.target.value)}
+                    className="input-pill-field"
+                    maxLength={12}
+                  />
+                </div>
 
-            {/* Botón Principal Ingresar */}
-            <button type="submit" className="huaraz-btn-submit">
-              <ArrowRight size={20} strokeWidth={2.4} className="btn-arrow-icon" />
-              <span>Ingresar</span>
-            </button>
+                {/* Correo Electrónico */}
+                <div className="huaraz-input-pill">
+                  <Mail size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type="email"
+                    placeholder="Correo Electrónico"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="input-pill-field"
+                    required
+                  />
+                </div>
 
-            {/* Separador de Registro */}
-            <div className="huaraz-card-divider">
-              ¿No tienes una cuenta?
-            </div>
+                {/* Teléfono (Opcional) */}
+                <div className="huaraz-input-pill">
+                  <Phone size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type="tel"
+                    placeholder="Teléfono / Celular (Opcional)"
+                    value={telefono}
+                    onChange={(e) => setTelefono(e.target.value)}
+                    className="input-pill-field"
+                  />
+                </div>
 
-            {/* Botón Registrarse / Explorar como Turista */}
-            <button
-              type="button"
-              className="huaraz-btn-register"
-              onClick={() => {
-                setSelectedRole('usuario');
-                setShowTouristDrawer(!showTouristDrawer);
-              }}
-            >
-              <UserPlus size={18} strokeWidth={2.2} />
-              <span>Registrarse</span>
-            </button>
-          </form>
+                {/* Contraseña */}
+                <div className="huaraz-input-pill">
+                  <Lock size={18} strokeWidth={2.2} className="input-pill-icon" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Crea una Contraseña"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="input-pill-field"
+                    required
+                  />
+                  <button
+                    type="button"
+                    className="input-pill-eye-btn"
+                    onClick={() => setShowPassword(!showPassword)}
+                    aria-label="Ver u ocultar contraseña"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
 
-          {/* Cajón interactivo para seleccionar o probar turistas demo */}
+                {/* Botón Crear Cuenta y Entrar */}
+                <button type="submit" className="huaraz-btn-submit" style={{ marginTop: '6px' }}>
+                  <UserPlus size={20} strokeWidth={2.4} className="btn-arrow-icon" />
+                  <span>Crear Cuenta y Entrar</span>
+                </button>
+
+                {/* Separador */}
+                <div className="huaraz-card-divider">
+                  ¿Ya tienes una cuenta?
+                </div>
+
+                {/* Volver a Iniciar Sesión */}
+                <button
+                  type="button"
+                  className="huaraz-btn-register"
+                  onClick={handleGoToLogin}
+                >
+                  <ArrowRight size={18} strokeWidth={2.2} />
+                  <span>Iniciar sesión</span>
+                </button>
+              </form>
+            </>
+          )}
+
+          {/* Cajón interactivo para probar turistas demo (opcional) */}
           {showTouristDrawer && (
             <div className="huaraz-tourist-drawer">
               <div className="drawer-header">

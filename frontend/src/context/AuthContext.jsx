@@ -83,6 +83,17 @@ export function AuthProvider({ children }) {
 
   const [isCredentialModalOpen, setIsCredentialModalOpen] = useState(false);
 
+  // Lista de usuarios registrados (inicia con los DEMO_CLIENTS y persiste nuevos registros)
+  const [registeredUsers, setRegisteredUsers] = useState(() => {
+    try {
+      const saved = localStorage.getItem('huaraz_registered_users');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error('Error loading registered users:', e);
+    }
+    return DEMO_CLIENTS;
+  });
+
   useEffect(() => {
     try {
       localStorage.setItem('huaraz_current_user', JSON.stringify(currentUser));
@@ -90,6 +101,14 @@ export function AuthProvider({ children }) {
       console.error('Error saving user to localStorage:', e);
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('huaraz_registered_users', JSON.stringify(registeredUsers));
+    } catch (e) {
+      console.error('Error saving registered users to localStorage:', e);
+    }
+  }, [registeredUsers]);
 
   useEffect(() => {
     try {
@@ -106,20 +125,57 @@ export function AuthProvider({ children }) {
   };
 
   const loginAsUser = (client = null) => {
-    const selected = client || DEMO_CLIENTS[0];
+    const selected = client || registeredUsers[0] || DEMO_CLIENTS[0];
     setCurrentUser({
-      id: selected.id,
-      nombre: selected.nombre,
-      correo: selected.correo,
-      dni: selected.dni,
-      telefono: selected.telefono,
-      avatar: selected.avatar,
+      id: selected.id || `C-${Date.now().toString().slice(-4)}`,
+      nombre: selected.nombre || 'Turista',
+      correo: selected.correo || 'turista@email.com',
+      dni: selected.dni || '12345678',
+      telefono: selected.telefono || '',
+      avatar: selected.avatar || '/images/avatar.jpg',
       role: 'usuario',
       roleLabel: 'Usuario / Turista',
-      cargo: `Turista Registrado (${selected.reservasCount || 1} reservas)`,
+      cargo: selected.cargo || `Turista Registrado (${selected.reservasCount || 0} reservas)`,
     });
     setIsAuthenticated(true);
-    return { success: true, message: `Bienvenido(a), ${selected.nombre}` };
+    return { success: true, message: `Bienvenido(a), ${selected.nombre || 'Turista'}` };
+  };
+
+  // Registrar nuevo usuario turista y autenticarlo inmediatamente
+  const registerUser = ({ nombre, correo, dni, telefono = '', password = '' }) => {
+    const cleanEmail = (correo || '').trim().toLowerCase();
+    const cleanNombre = (nombre || '').trim();
+    const cleanDni = (dni || '').trim() || '12345678';
+
+    if (!cleanNombre || !cleanEmail) {
+      return { success: false, message: 'Por favor ingresa tu nombre y correo electrónico.' };
+    }
+
+    const existing = registeredUsers.find((u) => u.correo.toLowerCase() === cleanEmail);
+    if (existing) {
+      loginAsUser(existing);
+      return { success: true, message: `Bienvenido de nuevo, ${existing.nombre}` };
+    }
+
+    const newUser = {
+      id: `C-${Date.now().toString().slice(-4)}`,
+      nombre: cleanNombre,
+      correo: cleanEmail,
+      dni: cleanDni,
+      telefono: telefono.trim(),
+      avatar: '/images/avatar.jpg',
+      role: 'usuario',
+      roleLabel: 'Usuario / Turista',
+      cargo: 'Turista Registrado (0 reservas)',
+      reservasCount: 0,
+      categoria: 'Aventura & Turismo',
+    };
+
+    const updated = [newUser, ...registeredUsers];
+    setRegisteredUsers(updated);
+    setCurrentUser(newUser);
+    setIsAuthenticated(true);
+    return { success: true, message: `¡Cuenta creada exitosamente! Bienvenido(a), ${newUser.nombre}` };
   };
 
   const logout = () => {
@@ -139,7 +195,7 @@ export function AuthProvider({ children }) {
           correo: customClient.correo,
           dni: customClient.dni,
           telefono: customClient.telefono,
-          avatar: customClient.avatar,
+          avatar: customClient.avatar || '/images/avatar.jpg',
           role: 'usuario',
           roleLabel: 'Usuario / Turista',
           cargo: `Turista Registrado (${customClient.reservasCount || 1} reservas)`,
@@ -152,26 +208,51 @@ export function AuthProvider({ children }) {
   };
 
   const loginWithCredentials = (email, password, desiredRole) => {
-    if (desiredRole === 'admin' || email.toLowerCase().includes('admin')) {
-      return loginAsAdmin();
+    const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (password || '').trim();
+
+    if (!cleanEmail) {
+      return { success: false, message: 'Por favor ingresa tu correo electrónico.' };
     }
-    const matched = DEMO_CLIENTS.find((c) => c.correo.toLowerCase() === email.toLowerCase());
+
+    if (desiredRole === 'admin' || cleanEmail.includes('admin')) {
+      if (cleanEmail === 'admin@huaraztours.com' && (cleanPassword === 'admin123' || cleanPassword === '')) {
+        return loginAsAdmin();
+      }
+      if (cleanEmail.includes('admin')) {
+        // Permitir acceso con credenciales admin demo
+        return loginAsAdmin();
+      }
+      return {
+        success: false,
+        message: 'Credenciales de Administrador incorrectas. Usa admin@huaraztours.com y contraseña admin123',
+      };
+    }
+
+    // Rol Turista / Usuario
+    const matched = registeredUsers.find((c) => c.correo.toLowerCase() === cleanEmail);
     if (matched) {
       return loginAsUser(matched);
     }
-    setCurrentUser({
-      id: 'C-NEW',
-      nombre: email.split('@')[0],
-      correo: email,
-      dni: '99887766',
-      telefono: '999 000 111',
-      avatar: '/images/avatars/client_maria.jpg',
+
+    // Si el usuario ingresa un correo nuevo como turista, creamos su cuenta automáticamente y le damos acceso
+    const autoUser = {
+      id: `C-${Date.now().toString().slice(-4)}`,
+      nombre: cleanEmail.split('@')[0].replace('.', ' '),
+      correo: cleanEmail,
+      dni: '12345678',
+      telefono: '',
+      avatar: '/images/avatar.jpg',
       role: 'usuario',
       roleLabel: 'Usuario / Turista',
-      cargo: 'Turista Nuevo',
-    });
+      cargo: 'Turista Registrado',
+      reservasCount: 0,
+    };
+    const updated = [autoUser, ...registeredUsers];
+    setRegisteredUsers(updated);
+    setCurrentUser(autoUser);
     setIsAuthenticated(true);
-    return { success: true, message: 'Acceso concedido como Turista' };
+    return { success: true, message: `Bienvenido(a), ${autoUser.nombre}` };
   };
 
   const openCredentialModal = () => setIsCredentialModalOpen(true);
@@ -184,7 +265,9 @@ export function AuthProvider({ children }) {
     isAdmin: currentUser.role === 'admin',
     isUser: currentUser.role === 'usuario',
     availableUsers: PRESET_USERS,
-    demoClients: DEMO_CLIENTS,
+    demoClients: registeredUsers,
+    registeredUsers,
+    registerUser,
     loginAsAdmin,
     loginAsUser,
     logout,
