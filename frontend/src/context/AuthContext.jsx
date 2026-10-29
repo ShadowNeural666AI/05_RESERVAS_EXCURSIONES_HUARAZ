@@ -5,6 +5,7 @@ const PRESET_USERS = {
     id: 'ADM-001',
     nombre: 'Administrador General',
     correo: 'admin@huaraztours.com',
+    password: 'admin123',
     dni: '00000001',
     telefono: '043-421234',
     avatar: '/images/avatar.jpg',
@@ -16,8 +17,9 @@ const PRESET_USERS = {
     id: 'C-001',
     nombre: 'María López',
     correo: 'maria.lopez@email.com',
+    password: 'turista123',
     dni: '12345678',
-    telefono: '987 654 321',
+    telefono: '987654321',
     avatar: '/images/avatars/client_maria.jpg',
     role: 'usuario',
     roleLabel: 'Usuario / Turista',
@@ -30,8 +32,9 @@ export const DEMO_CLIENTS = [
     id: 'C-001',
     nombre: 'María López',
     correo: 'maria.lopez@email.com',
+    password: 'turista123',
     dni: '12345678',
-    telefono: '987 654 321',
+    telefono: '987654321',
     avatar: '/images/avatars/client_maria.jpg',
     reservasCount: 3,
     categoria: 'Aventura & Trekking',
@@ -40,8 +43,9 @@ export const DEMO_CLIENTS = [
     id: 'C-002',
     nombre: 'Carlos Ramos',
     correo: 'carlos.ramos@email.com',
+    password: 'turista123',
     dni: '87654321',
-    telefono: '912 345 678',
+    telefono: '912345678',
     avatar: '/images/avatars/client_carlos.jpg',
     reservasCount: 2,
     categoria: 'Cultural & Arqueología',
@@ -50,8 +54,9 @@ export const DEMO_CLIENTS = [
     id: 'C-003',
     nombre: 'Ana Torres',
     correo: 'ana.torres@email.com',
+    password: 'turista123',
     dni: '45678912',
-    telefono: '998 712 345',
+    telefono: '998712345',
     avatar: '/images/avatars/client_ana.jpg',
     reservasCount: 1,
     categoria: 'Senderismo Andino',
@@ -141,20 +146,39 @@ export function AuthProvider({ children }) {
     return { success: true, message: `Bienvenido(a), ${selected.nombre || 'Turista'}` };
   };
 
-  // Registrar nuevo usuario turista y autenticarlo inmediatamente
+  // Registrar nuevo usuario turista y autenticarlo inmediatamente con validación de restricciones
   const registerUser = ({ nombre, correo, dni, telefono = '', password = '' }) => {
     const cleanEmail = (correo || '').trim().toLowerCase();
     const cleanNombre = (nombre || '').trim();
-    const cleanDni = (dni || '').trim() || '12345678';
+    const cleanDni = (dni || '').trim();
+    const cleanTel = (telefono || '').trim();
 
-    if (!cleanNombre || !cleanEmail) {
-      return { success: false, message: 'Por favor ingresa tu nombre y correo electrónico.' };
+    if (!cleanNombre || cleanNombre.length < 3) {
+      return { success: false, message: 'El nombre debe contener al menos 3 caracteres.' };
     }
 
-    const existing = registeredUsers.find((u) => u.correo.toLowerCase() === cleanEmail);
-    if (existing) {
-      loginAsUser(existing);
-      return { success: true, message: `Bienvenido de nuevo, ${existing.nombre}` };
+    if (!cleanEmail || !cleanEmail.includes('@') || !cleanEmail.includes('.')) {
+      return { success: false, message: 'Ingresa un formato de correo electrónico válido.' };
+    }
+
+    if (!cleanDni || cleanDni.length !== 8) {
+      return { success: false, message: 'El DNI debe tener exactamente 8 dígitos numéricos.' };
+    }
+
+    if (!password || password.length < 6) {
+      return { success: false, message: 'La contraseña debe contener al menos 6 caracteres.' };
+    }
+
+    // Restricción: No duplicar correo
+    const existingEmail = registeredUsers.find((u) => u.correo.toLowerCase() === cleanEmail);
+    if (existingEmail) {
+      return { success: false, message: 'Este correo ya se encuentra registrado. Por favor inicia sesión.' };
+    }
+
+    // Restricción: No duplicar DNI
+    const existingDni = registeredUsers.find((u) => u.dni === cleanDni);
+    if (existingDni) {
+      return { success: false, message: 'El número de DNI ya está registrado en el sistema.' };
     }
 
     const newUser = {
@@ -162,7 +186,8 @@ export function AuthProvider({ children }) {
       nombre: cleanNombre,
       correo: cleanEmail,
       dni: cleanDni,
-      telefono: telefono.trim(),
+      telefono: cleanTel,
+      password: password,
       avatar: '/images/avatar.jpg',
       role: 'usuario',
       roleLabel: 'Usuario / Turista',
@@ -195,6 +220,7 @@ export function AuthProvider({ children }) {
           correo: customClient.correo,
           dni: customClient.dni,
           telefono: customClient.telefono,
+          password: customClient.password || 'turista123',
           avatar: customClient.avatar || '/images/avatar.jpg',
           role: 'usuario',
           roleLabel: 'Usuario / Turista',
@@ -215,44 +241,45 @@ export function AuthProvider({ children }) {
       return { success: false, message: 'Por favor ingresa tu correo electrónico.' };
     }
 
-    if (desiredRole === 'admin' || cleanEmail.includes('admin')) {
-      if (cleanEmail === 'admin@huaraztours.com' && (cleanPassword === 'admin123' || cleanPassword === '')) {
-        return loginAsAdmin();
+    if (!cleanPassword) {
+      return { success: false, message: 'Por favor ingresa tu contraseña.' };
+    }
+
+    // Restricciones para Administrador
+    if (desiredRole === 'admin') {
+      if (cleanEmail !== 'admin@huaraztours.com' && !cleanEmail.endsWith('@huaraztours.com')) {
+        return {
+          success: false,
+          message: 'Acceso restringido: El portal administrativo solo admite cuentas institucionales (@huaraztours.com).',
+        };
       }
-      if (cleanEmail.includes('admin')) {
-        // Permitir acceso con credenciales admin demo
-        return loginAsAdmin();
+      if (cleanPassword !== 'admin123') {
+        return {
+          success: false,
+          message: 'Contraseña de administrador incorrecta. Acceso restringido.',
+        };
       }
+      return loginAsAdmin();
+    }
+
+    // Restricciones para Turista / Usuario
+    const matched = registeredUsers.find((c) => c.correo.toLowerCase() === cleanEmail);
+    if (!matched) {
       return {
         success: false,
-        message: 'Credenciales de Administrador incorrectas. Usa admin@huaraztours.com y contraseña admin123',
+        message: 'No existe ninguna cuenta registrada con este correo electrónico. Por favor regístrate como turista.',
       };
     }
 
-    // Rol Turista / Usuario
-    const matched = registeredUsers.find((c) => c.correo.toLowerCase() === cleanEmail);
-    if (matched) {
-      return loginAsUser(matched);
+    const expectedPassword = matched.password || 'turista123';
+    if (cleanPassword !== expectedPassword) {
+      return {
+        success: false,
+        message: 'Contraseña incorrecta. Por favor verifica tus credenciales.',
+      };
     }
 
-    // Si el usuario ingresa un correo nuevo como turista, creamos su cuenta automáticamente y le damos acceso
-    const autoUser = {
-      id: `C-${Date.now().toString().slice(-4)}`,
-      nombre: cleanEmail.split('@')[0].replace('.', ' '),
-      correo: cleanEmail,
-      dni: '12345678',
-      telefono: '',
-      avatar: '/images/avatar.jpg',
-      role: 'usuario',
-      roleLabel: 'Usuario / Turista',
-      cargo: 'Turista Registrado',
-      reservasCount: 0,
-    };
-    const updated = [autoUser, ...registeredUsers];
-    setRegisteredUsers(updated);
-    setCurrentUser(autoUser);
-    setIsAuthenticated(true);
-    return { success: true, message: `Bienvenido(a), ${autoUser.nombre}` };
+    return loginAsUser(matched);
   };
 
   const openCredentialModal = () => setIsCredentialModalOpen(true);
