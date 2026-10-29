@@ -1,11 +1,11 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { Search, Bell, ChevronDown, ShieldCheck, Compass, KeyRound } from 'lucide-react';
+import { Search, Bell, ChevronDown, ShieldCheck, Compass, KeyRound, LogOut } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
   const location = useLocation();
-  const { user, isAdmin, openCredentialModal } = useAuth();
+  const { user, isAdmin, openCredentialModal, logout } = useAuth();
 
   const isReportes = location.pathname === '/reportes';
   const isReservas = location.pathname === '/reservas';
@@ -81,6 +81,17 @@ export default function Header() {
           </div>
           <ChevronDown size={14} className="user-chevron" />
         </div>
+
+        {/* Botón Cerrar Sesión para volver al login */}
+        <button
+          type="button"
+          className="header-logout-btn"
+          onClick={logout}
+          title="Cerrar sesión y volver a la pantalla de login"
+        >
+          <LogOut size={16} />
+          <span>Salir</span>
+        </button>
       </div>
     </header>
   );

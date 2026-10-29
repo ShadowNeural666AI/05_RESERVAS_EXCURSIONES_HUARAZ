@@ -34,6 +34,7 @@ export const DEMO_CLIENTS = [
     telefono: '987 654 321',
     avatar: '/images/avatars/client_maria.jpg',
     reservasCount: 3,
+    categoria: 'Aventura & Trekking',
   },
   {
     id: 'C-002',
@@ -43,6 +44,7 @@ export const DEMO_CLIENTS = [
     telefono: '912 345 678',
     avatar: '/images/avatars/client_carlos.jpg',
     reservasCount: 2,
+    categoria: 'Cultural & Arqueología',
   },
   {
     id: 'C-003',
@@ -52,13 +54,23 @@ export const DEMO_CLIENTS = [
     telefono: '998 712 345',
     avatar: '/images/avatars/client_ana.jpg',
     reservasCount: 1,
+    categoria: 'Senderismo Andino',
   },
 ];
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  // Cargar estado inicial desde localStorage o por defecto 'admin'
+  // Estado de autenticación: por defecto false para que primero aparezca el Login
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    try {
+      const savedAuth = sessionStorage.getItem('huaraz_is_authenticated');
+      return savedAuth === 'true';
+    } catch (e) {
+      return false;
+    }
+  });
+
   const [currentUser, setCurrentUser] = useState(() => {
     try {
       const saved = localStorage.getItem('huaraz_current_user');
@@ -78,6 +90,43 @@ export function AuthProvider({ children }) {
       console.error('Error saving user to localStorage:', e);
     }
   }, [currentUser]);
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem('huaraz_is_authenticated', isAuthenticated ? 'true' : 'false');
+    } catch (e) {
+      console.error('Error saving auth to sessionStorage:', e);
+    }
+  }, [isAuthenticated]);
+
+  const loginAsAdmin = () => {
+    setCurrentUser(PRESET_USERS.admin);
+    setIsAuthenticated(true);
+    return { success: true, message: 'Bienvenido, Administrador General' };
+  };
+
+  const loginAsUser = (client = null) => {
+    const selected = client || DEMO_CLIENTS[0];
+    setCurrentUser({
+      id: selected.id,
+      nombre: selected.nombre,
+      correo: selected.correo,
+      dni: selected.dni,
+      telefono: selected.telefono,
+      avatar: selected.avatar,
+      role: 'usuario',
+      roleLabel: 'Usuario / Turista',
+      cargo: `Turista Registrado (${selected.reservasCount || 1} reservas)`,
+    });
+    setIsAuthenticated(true);
+    return { success: true, message: `Bienvenido(a), ${selected.nombre}` };
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setIsCredentialModalOpen(false);
+    sessionStorage.removeItem('huaraz_is_authenticated');
+  };
 
   const switchRole = (newRole, customClient = null) => {
     if (newRole === 'admin') {
@@ -99,29 +148,29 @@ export function AuthProvider({ children }) {
         setCurrentUser(PRESET_USERS.usuario);
       }
     }
+    setIsAuthenticated(true);
   };
 
   const loginWithCredentials = (email, password, desiredRole) => {
-    if (desiredRole === 'admin' || email.includes('admin')) {
-      setCurrentUser(PRESET_USERS.admin);
-      return { success: true, message: 'Acceso concedido como Administrador' };
+    if (desiredRole === 'admin' || email.toLowerCase().includes('admin')) {
+      return loginAsAdmin();
     }
     const matched = DEMO_CLIENTS.find((c) => c.correo.toLowerCase() === email.toLowerCase());
     if (matched) {
-      switchRole('usuario', matched);
-    } else {
-      setCurrentUser({
-        id: 'C-NEW',
-        nombre: email.split('@')[0],
-        correo: email,
-        dni: '99887766',
-        telefono: '999 000 111',
-        avatar: '/images/avatars/client_maria.jpg',
-        role: 'usuario',
-        roleLabel: 'Usuario / Turista',
-        cargo: 'Turista Nuevo',
-      });
+      return loginAsUser(matched);
     }
+    setCurrentUser({
+      id: 'C-NEW',
+      nombre: email.split('@')[0],
+      correo: email,
+      dni: '99887766',
+      telefono: '999 000 111',
+      avatar: '/images/avatars/client_maria.jpg',
+      role: 'usuario',
+      roleLabel: 'Usuario / Turista',
+      cargo: 'Turista Nuevo',
+    });
+    setIsAuthenticated(true);
     return { success: true, message: 'Acceso concedido como Turista' };
   };
 
@@ -129,12 +178,16 @@ export function AuthProvider({ children }) {
   const closeCredentialModal = () => setIsCredentialModalOpen(false);
 
   const value = {
+    isAuthenticated,
     user: currentUser,
     role: currentUser.role,
     isAdmin: currentUser.role === 'admin',
     isUser: currentUser.role === 'usuario',
     availableUsers: PRESET_USERS,
     demoClients: DEMO_CLIENTS,
+    loginAsAdmin,
+    loginAsUser,
+    logout,
     switchRole,
     loginWithCredentials,
     isCredentialModalOpen,
@@ -152,4 +205,3 @@ export function useAuth() {
   }
   return context;
 }
-

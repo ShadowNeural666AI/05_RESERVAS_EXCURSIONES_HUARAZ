@@ -14,7 +14,8 @@ import {
   Phone,
   CreditCard,
   ArrowRight,
-  ExternalLink
+  ExternalLink,
+  LogOut
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
@@ -28,7 +29,8 @@ export default function CredentialModal() {
     demoClients,
     isCredentialModalOpen,
     closeCredentialModal,
-    loginWithCredentials
+    loginWithCredentials,
+    logout
   } = useAuth();
 
   const [selectedClientIndex, setSelectedClientIndex] = useState(0);
@@ -276,11 +278,23 @@ export default function CredentialModal() {
           </form>
         </div>
 
-        {/* Footer info */}
+        {/* Footer info con botón de cerrar sesión */}
         <div className="credential-modal-footer">
+          <button
+            type="button"
+            className="footer-logout-btn"
+            onClick={() => {
+              logout();
+            }}
+          >
+            <LogOut size={14} />
+            <span>Cerrar Sesión</span>
+          </button>
+
           <span className="footer-note">
-            Huaraz Tours v1.0 • Sistema con Control de Acceso Basado en Roles (RBAC)
+            Huaraz Tours • Control de Acceso RBAC
           </span>
+
           <button type="button" className="footer-dismiss-btn" onClick={closeCredentialModal}>
             Listo
           </button>

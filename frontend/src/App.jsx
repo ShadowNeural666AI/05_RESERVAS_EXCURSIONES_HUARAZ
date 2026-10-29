@@ -5,6 +5,7 @@ import Header from './components/Header';
 import CredentialModal from './components/CredentialModal';
 import RestrictedAccess from './components/RestrictedAccess';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
 import Inicio from './pages/Inicio';
 import Rutas from './pages/Rutas';
 import RutaFormPage from './pages/RutaFormPage';
@@ -17,7 +18,12 @@ import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
 
 function AppContent() {
-  const { isAdmin } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
+
+  // Si no ha iniciado sesión, mostrar primero la pantalla de Login
+  if (!isAuthenticated) {
+    return <Login />;
+  }
 
   return (
     <div className="app-container">

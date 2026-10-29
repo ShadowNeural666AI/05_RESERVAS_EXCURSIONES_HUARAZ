@@ -86,3 +86,4 @@ npm run dev
 
 ## 👤 Autor
 Desarrollado para el reto de desarrollo web - Sistema de Reservas de Excursiones en Huaraz.
+
