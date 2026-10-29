@@ -1,11 +1,13 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
-import { Search, Bell, ChevronDown, ShieldCheck, Compass, KeyRound, LogOut } from 'lucide-react';
+import React, { useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { Search, Bell, ChevronDown, LogOut, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { user, isAdmin, openCredentialModal, logout } = useAuth();
+  const [searchTerm, setSearchTerm] = useState('');
 
   const isReportes = location.pathname === '/reportes';
   const isReservas = location.pathname === '/reservas';
@@ -21,62 +23,77 @@ export default function Header() {
 
   const notificationCount = (isReportes || isReservas) ? 3 : 1;
 
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      navigate(`/rutas?q=${encodeURIComponent(searchTerm.trim())}`);
+    }
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+  };
+
   return (
     <header className={`top-header ${isDarkView ? 'top-header-dark' : ''}`}>
-      <div className="header-search-wrap">
-        <Search size={16} className="header-search-icon" />
+      {/* Buscador de Lupa con Diseño Ultra-Moderno y Funcional */}
+      <form className="header-search-wrap" onSubmit={handleSearchSubmit}>
+        <Search size={18} className="header-search-icon" />
         <input
           type="text"
           className="header-search-input"
           placeholder={searchPlaceholder}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </div>
+        {searchTerm && (
+          <button
+            type="button"
+            className="header-search-clear-btn"
+            onClick={handleClearSearch}
+            aria-label="Limpiar búsqueda"
+          >
+            <X size={14} />
+          </button>
+        )}
+      </form>
 
       <div className="header-right-actions">
-        {/* Botón Acceso Rápido a Credenciales y Roles */}
-        <button
-          type="button"
-          className={`header-role-switcher-btn ${isAdmin ? 'role-btn-admin' : 'role-btn-user'}`}
-          onClick={openCredentialModal}
-          title="Abrir Panel de Credenciales y Roles"
-        >
-          {isAdmin ? <ShieldCheck size={15} /> : <Compass size={15} />}
-          <span className="role-switcher-text">
-            {isAdmin ? 'Admin' : 'Turista'}
-          </span>
-          <span className="role-switcher-pill">Cambiar</span>
-        </button>
-
-        {/* Notification Bell with Badge */}
+        {/* Notificaciones con Badge */}
         <button
           type="button"
           className="header-bell-btn"
-          title="Notificaciones"
+          title="Notificaciones del sistema"
           aria-label="Notificaciones"
         >
           <Bell size={18} />
           <span className="bell-badge">{notificationCount}</span>
         </button>
 
-        {/* User Profile Badge (Clickable para abrir panel de credenciales) */}
+        {/* Badge de Perfil de Usuario (Clickable para abrir Perfil Detallado) */}
         <div
           className="user-profile-badge"
           onClick={openCredentialModal}
-          title="Haz clic para ver credenciales y cambiar de rol"
+          title="Haz clic para ver tu perfil de usuario"
+          role="button"
+          tabIndex={0}
         >
-          <img
-            src={user.avatar}
-            alt={user.nombre}
-            className="user-avatar"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = '/images/avatar.jpg';
-            }}
-          />
+          <div className="header-avatar-container">
+            <img
+              src={user.avatar}
+              alt={user.nombre}
+              className="user-avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/images/avatar.jpg';
+              }}
+            />
+            <span className="header-status-indicator" title="En línea"></span>
+          </div>
           <div className="header-user-text-col">
             <span className="user-name">{user.nombre}</span>
             <span className="user-role-micro-label">
-              {isAdmin ? 'Administrador' : 'Turista / Cliente'}
+              {isAdmin ? '🛡️ Administrador' : '🎒 Turista'}
             </span>
           </div>
           <ChevronDown size={14} className="user-chevron" />
@@ -87,7 +104,7 @@ export default function Header() {
           type="button"
           className="header-logout-btn"
           onClick={logout}
-          title="Cerrar sesión y volver a la pantalla de login"
+          title="Cerrar sesión"
         >
           <LogOut size={16} />
           <span>Salir</span>

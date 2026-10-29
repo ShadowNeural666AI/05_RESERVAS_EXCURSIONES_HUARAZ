@@ -1,306 +1,283 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   X,
-  Shield,
   ShieldCheck,
-  User,
-  Users,
   Compass,
-  CheckCircle2,
-  Lock,
   Mail,
-  KeyRound,
-  Sparkles,
   Phone,
   CreditCard,
-  ArrowRight,
-  ExternalLink,
-  LogOut
+  Mountain,
+  CalendarCheck,
+  LogOut,
+  MapPin,
+  CheckCircle2,
+  Sparkles,
+  UserCheck,
+  TrendingUp,
+  Award
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function CredentialModal() {
+  const navigate = useNavigate();
   const {
     user,
-    role,
     isAdmin,
     isUser,
     switchRole,
     demoClients,
     isCredentialModalOpen,
     closeCredentialModal,
-    loginWithCredentials,
     logout
   } = useAuth();
 
-  const [selectedClientIndex, setSelectedClientIndex] = useState(0);
-  const [emailInput, setEmailInput] = useState('');
-  const [passwordInput, setPasswordInput] = useState('');
-  const [feedbackMsg, setFeedbackMsg] = useState(null);
-
   if (!isCredentialModalOpen) return null;
 
-  const handleSelectAdmin = () => {
-    switchRole('admin');
-    setFeedbackMsg({ type: 'success', text: '¡Modo Administrador activado con éxito!' });
-    setTimeout(() => {
-      setFeedbackMsg(null);
-      closeCredentialModal();
-    }, 900);
+  const handleNavigate = (path) => {
+    closeCredentialModal();
+    navigate(path);
   };
 
-  const handleSelectUser = (client) => {
-    switchRole('usuario', client || demoClients[selectedClientIndex]);
-    setFeedbackMsg({
-      type: 'success',
-      text: `¡Modo Usuario activado como ${client?.nombre || demoClients[selectedClientIndex].nombre}!`,
-    });
-    setTimeout(() => {
-      setFeedbackMsg(null);
-      closeCredentialModal();
-    }, 900);
-  };
-
-  const handleManualLogin = (e) => {
-    e.preventDefault();
-    if (!emailInput) {
-      setFeedbackMsg({ type: 'error', text: 'Por favor ingresa un correo electrónico.' });
-      return;
-    }
-    const res = loginWithCredentials(emailInput, passwordInput, emailInput.includes('admin') ? 'admin' : 'usuario');
-    setFeedbackMsg({ type: 'success', text: res.message });
-    setTimeout(() => {
-      setFeedbackMsg(null);
-      closeCredentialModal();
-    }, 900);
+  const handleLogout = () => {
+    closeCredentialModal();
+    logout();
   };
 
   return (
     <div className="credential-modal-backdrop" onClick={closeCredentialModal}>
       <div
-        className="credential-modal-container"
+        className="profile-modal-container"
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
       >
-        {/* Header con gradiente y botón de cerrar */}
-        <div className="credential-modal-header">
-          <div className="modal-header-brand">
-            <div className="modal-brand-badge">
-              <Sparkles size={18} className="brand-sparkle-icon" />
-            </div>
-            <div>
-              <h2 className="modal-title">Panel de Credenciales & Roles</h2>
-              <p className="modal-subtitle">
-                Alterna entre la vista de <strong>Administrador</strong> y <strong>Usuario / Turista</strong>
-              </p>
+        {/* Banner Superior con Montañas y Botón de Cerrar */}
+        <div className="profile-modal-hero-banner">
+          <div className="hero-banner-overlay" />
+          <div className="hero-banner-content">
+            <div className="profile-banner-badge">
+              <Mountain size={14} />
+              <span>Huaraz Tours • Portal de Usuario</span>
             </div>
           </div>
           <button
             type="button"
-            className="modal-close-btn"
+            className="profile-modal-close-btn"
             onClick={closeCredentialModal}
             aria-label="Cerrar modal"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Tarjeta de Sesión Activa */}
-        <div className={`active-session-card ${isAdmin ? 'session-admin' : 'session-user'}`}>
-          <div className="session-card-left">
-            <div className="session-avatar-wrapper">
-              <img
-                src={user.avatar}
-                alt={user.nombre}
-                className="session-avatar-img"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = '/images/avatar.jpg';
-                }}
-              />
-              <span className="session-status-dot" title="En línea"></span>
-            </div>
-            <div className="session-user-details">
-              <div className="session-name-row">
-                <span className="session-user-name">{user.nombre}</span>
-                <span className={`role-pill-badge ${isAdmin ? 'pill-admin' : 'pill-user'}`}>
-                  {isAdmin ? <ShieldCheck size={13} /> : <Compass size={13} />}
-                  <span>{user.roleLabel}</span>
-                </span>
-              </div>
-              <div className="session-meta-grid">
-                <span className="session-meta-item">
-                  <Mail size={12} />
-                  <span>{user.correo}</span>
-                </span>
-                {user.dni && (
-                  <span className="session-meta-item">
-                    <CreditCard size={12} />
-                    <span>DNI: {user.dni}</span>
-                  </span>
-                )}
-                {user.telefono && (
-                  <span className="session-meta-item">
-                    <Phone size={12} />
-                    <span>{user.telefono}</span>
-                  </span>
-                )}
-              </div>
-            </div>
+        {/* Sección de Avatar y Título Principal */}
+        <div className="profile-user-hero-section">
+          <div className="profile-avatar-wrapper">
+            <img
+              src={user.avatar}
+              alt={user.nombre}
+              className="profile-hero-avatar"
+              onError={(e) => {
+                e.target.onerror = null;
+                e.target.src = '/images/avatar.jpg';
+              }}
+            />
+            <span className="profile-online-badge" title="Usuario Conectado">
+              <span className="online-pulse"></span>
+            </span>
           </div>
-          <div className="session-card-right">
-            <div className="session-mode-indicator">
-              <span className="indicator-label">Estado de Acceso:</span>
-              <span className="indicator-value">
-                {isAdmin ? 'Acceso Total (CRUD + Reportes)' : 'Vista Turista (Rutas + Mis Reservas)'}
+
+          <div className="profile-hero-details">
+            <div className="profile-name-row">
+              <h2 className="profile-user-name">{user.nombre}</h2>
+              <span className={`profile-role-tag ${isAdmin ? 'tag-admin' : 'tag-user'}`}>
+                {isAdmin ? <ShieldCheck size={14} /> : <Compass size={14} />}
+                <span>{isAdmin ? 'Administrador Oficial' : 'Turista / Explorador'}</span>
               </span>
             </div>
+            <p className="profile-user-cargo">
+              {user.cargo || (isAdmin ? 'Gestor de Operaciones y Reservas' : 'Turista Registrado')}
+            </p>
           </div>
         </div>
 
-        {/* Mensaje de Feedback */}
-        {feedbackMsg && (
-          <div className={`feedback-alert-banner ${feedbackMsg.type}`}>
-            <CheckCircle2 size={16} />
-            <span>{feedbackMsg.text}</span>
-          </div>
-        )}
+        {/* Tarjetas de Métricas de Usuario */}
+        <div className="profile-metrics-row">
+          {isAdmin ? (
+            <>
+              <div className="profile-metric-card">
+                <span className="metric-num">6</span>
+                <span className="metric-label">Rutas Activas</span>
+              </div>
+              <div className="profile-metric-card">
+                <span className="metric-num">48</span>
+                <span className="metric-label">Reservas Totales</span>
+              </div>
+              <div className="profile-metric-card">
+                <span className="metric-num">146</span>
+                <span className="metric-label">Cupos Totales</span>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="profile-metric-card">
+                <span className="metric-num">{user.reservasCount || 1}</span>
+                <span className="metric-label">Reservas Realizadas</span>
+              </div>
+              <div className="profile-metric-card">
+                <span className="metric-num">100%</span>
+                <span className="metric-label">Confirmada</span>
+              </div>
+              <div className="profile-metric-card">
+                <span className="metric-num">VIP</span>
+                <span className="metric-label">Categoría Turista</span>
+              </div>
+            </>
+          )}
+        </div>
 
-        {/* Selector de Roles Rápidos */}
-        <div className="roles-cards-section">
-          <h3 className="section-label">Seleccionar Perfil de Acceso:</h3>
-          <div className="roles-grid">
-            {/* Tarjeta Administrador */}
-            <div
-              className={`role-choice-card ${isAdmin ? 'is-active-choice' : ''}`}
-              onClick={handleSelectAdmin}
+        {/* Cuadrícula de Datos Personales */}
+        <div className="profile-info-grid">
+          <div className="profile-info-item">
+            <div className="info-item-icon">
+              <Mail size={16} />
+            </div>
+            <div className="info-item-text">
+              <span className="info-label">Correo Electrónico</span>
+              <span className="info-value">{user.correo}</span>
+            </div>
+            <span className="info-badge-verified">Verificado</span>
+          </div>
+
+          <div className="profile-info-item">
+            <div className="info-item-icon">
+              <CreditCard size={16} />
+            </div>
+            <div className="info-item-text">
+              <span className="info-label">DNI / Documento</span>
+              <span className="info-value">{user.dni || '00000001'}</span>
+            </div>
+          </div>
+
+          <div className="profile-info-item">
+            <div className="info-item-icon">
+              <Phone size={16} />
+            </div>
+            <div className="info-item-text">
+              <span className="info-label">Teléfono / Celular</span>
+              <span className="info-value">{user.telefono || '043-421234'}</span>
+            </div>
+          </div>
+
+          <div className="profile-info-item">
+            <div className="info-item-icon">
+              <MapPin size={16} />
+            </div>
+            <div className="info-item-text">
+              <span className="info-label">Ubicación Preferida</span>
+              <span className="info-value">Laguna 69 • Cordillera Blanca</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Sección de Permisos y Privilegios */}
+        <div className="profile-privileges-box">
+          <div className="privileges-box-header">
+            <Sparkles size={15} />
+            <span>Capacidades de tu perfil ({isAdmin ? 'Administrador' : 'Turista'}):</span>
+          </div>
+          <ul className="privileges-checklist">
+            {isAdmin ? (
+              <>
+                <li>
+                  <CheckCircle2 size={14} className="check-icon" />
+                  <span>Gestión completa (CRUD) de rutas turísticas y excursiones.</span>
+                </li>
+                <li>
+                  <CheckCircle2 size={14} className="check-icon" />
+                  <span>Auditoría general de clientes, cupos y reservas.</span>
+                </li>
+                <li>
+                  <CheckCircle2 size={14} className="check-icon" />
+                  <span>Acceso a reportes estadísticos, gráficos y configuración.</span>
+                </li>
+              </>
+            ) : (
+              <>
+                <li>
+                  <CheckCircle2 size={14} className="check-icon" />
+                  <span>Exploración interactiva del catálogo de rutas en Huaraz.</span>
+                </li>
+                <li>
+                  <CheckCircle2 size={14} className="check-icon" />
+                  <span>Reserva de cupos en tiempo real con confirmación inmediata.</span>
+                </li>
+                <li>
+                  <CheckCircle2 size={14} className="check-icon" />
+                  <span>Panel personal exclusivo de "Mis Reservas" y comprobantes.</span>
+                </li>
+              </>
+            )}
+          </ul>
+        </div>
+
+        {/* Selector sutil de rol para testing demo */}
+        <div className="profile-role-toggle-bar">
+          <span className="role-toggle-hint">Alternar perfil de prueba:</span>
+          <div className="role-toggle-pills">
+            <button
+              type="button"
+              className={`role-toggle-pill ${isAdmin ? 'pill-active' : ''}`}
+              onClick={() => switchRole('admin')}
             >
-              <div className="role-card-header">
-                <div className="role-choice-icon-box icon-admin">
-                  <Shield size={24} />
-                </div>
-                {isAdmin && <span className="active-tag-pill">✓ ACTIVO</span>}
-              </div>
-              <h4 className="role-choice-title">Administrador</h4>
-              <p className="role-choice-desc">
-                Gestión total de la agencia: Crear, editar y eliminar excursiones, control global de clientes, auditoría de todas las reservas y reportes estadísticos.
-              </p>
-              <div className="role-credentials-preview">
-                <span className="cred-tag">admin@huaraztours.com</span>
-                <span className="cred-tag">Rol: Administrador</span>
-              </div>
-              <button
-                type="button"
-                className={`role-select-action-btn ${isAdmin ? 'btn-active-role' : 'btn-switch-admin'}`}
-              >
-                {isAdmin ? '✓ Perfil Activo' : 'Cambiar a Administrador'}
-              </button>
-            </div>
-
-            {/* Tarjeta Usuario / Turista */}
-            <div
-              className={`role-choice-card ${isUser ? 'is-active-choice' : ''}`}
-              onClick={() => handleSelectUser(demoClients[selectedClientIndex])}
+              <ShieldCheck size={13} />
+              <span>Modo Administrador</span>
+            </button>
+            <button
+              type="button"
+              className={`role-toggle-pill ${isUser ? 'pill-active' : ''}`}
+              onClick={() => switchRole('usuario', demoClients[0])}
             >
-              <div className="role-card-header">
-                <div className="role-choice-icon-box icon-user">
-                  <Compass size={24} />
-                </div>
-                {isUser && <span className="active-tag-pill user-tag">✓ ACTIVO</span>}
-              </div>
-              <h4 className="role-choice-title">Usuario / Turista</h4>
-              <p className="role-choice-desc">
-                Experiencia de cliente: Explorar rutas disponibles, reservar excursiones con cupos en vivo y gestionar su propio panel de "Mis Reservas".
-              </p>
-
-              {/* Selector de Turista Demo */}
-              <div className="demo-client-picker" onClick={(e) => e.stopPropagation()}>
-                <span className="picker-label">Turista de prueba:</span>
-                <div className="client-chips-row">
-                  {demoClients.map((client, idx) => (
-                    <button
-                      key={client.id}
-                      type="button"
-                      className={`client-chip ${user.id === client.id ? 'chip-selected' : ''}`}
-                      onClick={() => handleSelectUser(client)}
-                    >
-                      <img src={client.avatar} alt={client.nombre} className="chip-avatar" />
-                      <span>{client.nombre.split(' ')[0]}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <button
-                type="button"
-                className={`role-select-action-btn ${isUser ? 'btn-active-role' : 'btn-switch-user'}`}
-              >
-                {isUser ? `✓ Turista Activo (${user.nombre})` : 'Cambiar a Modo Turista'}
-              </button>
-            </div>
+              <Compass size={13} />
+              <span>Modo Turista</span>
+            </button>
           </div>
         </div>
 
-        {/* Sección de Acceso por Credenciales Manuales */}
-        <div className="manual-login-section">
-          <div className="manual-login-header">
-            <KeyRound size={16} className="key-icon" />
-            <span>Ingreso rápido con credenciales de prueba</span>
-          </div>
-          <form className="manual-login-form" onSubmit={handleManualLogin}>
-            <div className="login-inputs-row">
-              <div className="login-input-group">
-                <Mail size={15} className="input-icon" />
-                <input
-                  type="email"
-                  placeholder="admin@huaraztours.com o maria.lopez@email.com"
-                  className="login-input"
-                  value={emailInput}
-                  onChange={(e) => setEmailInput(e.target.value)}
-                />
-              </div>
-              <div className="login-input-group">
-                <Lock size={15} className="input-icon" />
-                <input
-                  type="password"
-                  placeholder="Contraseña (opcional en demo)"
-                  className="login-input"
-                  value={passwordInput}
-                  onChange={(e) => setPasswordInput(e.target.value)}
-                />
-              </div>
-              <button type="submit" className="login-submit-btn">
-                <span>Ingresar</span>
-                <ArrowRight size={15} />
-              </button>
-            </div>
-          </form>
-        </div>
+        {/* Botones de Acción del Perfil */}
+        <div className="profile-modal-actions">
+          {isAdmin ? (
+            <button
+              type="button"
+              className="profile-btn-primary"
+              onClick={() => handleNavigate('/rutas')}
+            >
+              <Mountain size={16} />
+              <span>Gestionar Rutas</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="profile-btn-primary"
+              onClick={() => handleNavigate('/reservas')}
+            >
+              <CalendarCheck size={16} />
+              <span>Ver Mis Reservas</span>
+            </button>
+          )}
 
-        {/* Footer info con botón de cerrar sesión */}
-        <div className="credential-modal-footer">
           <button
             type="button"
-            className="footer-logout-btn"
-            onClick={() => {
-              logout();
-            }}
+            className="profile-btn-logout"
+            onClick={handleLogout}
+            title="Cerrar sesión actual"
           >
-            <LogOut size={14} />
+            <LogOut size={16} />
             <span>Cerrar Sesión</span>
-          </button>
-
-          <span className="footer-note">
-            Huaraz Tours • Control de Acceso RBAC
-          </span>
-
-          <button type="button" className="footer-dismiss-btn" onClick={closeCredentialModal}>
-            Listo
           </button>
         </div>
       </div>
     </div>
   );
 }
-

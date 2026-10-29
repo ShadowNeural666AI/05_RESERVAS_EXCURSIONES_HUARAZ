@@ -90,9 +90,9 @@ export default function Sidebar() {
         )}
       </nav>
 
-      {/* Mini Widget de Rol Activo y Botón de Credencial */}
+      {/* Mini Widget de Perfil Activo */}
       <div className="sidebar-role-widget">
-        <div className="role-widget-card" onClick={openCredentialModal} title="Abrir panel de credenciales y roles">
+        <div className="role-widget-card" onClick={openCredentialModal} title="Ver mi perfil de usuario">
           <div className="role-widget-avatar-wrap">
             <img src={user.avatar} alt={user.nombre} className="role-widget-avatar" />
             <span className={`role-dot ${isAdmin ? 'dot-admin' : 'dot-user'}`}></span>
@@ -103,9 +103,6 @@ export default function Sidebar() {
               {isAdmin ? '🛡️ Admin' : '🎒 Turista'}
             </span>
           </div>
-          <button type="button" className="role-widget-switch-btn" aria-label="Cambiar credencial">
-            <RefreshCw size={13} />
-          </button>
         </div>
       </div>
 
