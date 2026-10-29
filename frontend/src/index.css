@@ -6841,6 +6841,819 @@ body {
 /* PANTALLA DE LOGIN INICIAL (ROLES ADMIN Y USUARIO)         */
 /* ========================================================= */
 
+/* ==========================================================================
+   PANTALLA DE LOGIN INICIAL - HUARAZ TOURS (REDiseño Glassmorphism Cordillera Blanca)
+   ========================================================================== */
+
+.huaraz-login-universe {
+  position: relative;
+  min-height: 100vh;
+  width: 100vw;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  box-sizing: border-box;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+/* Fondo Panorámico de la Cordillera Blanca */
+.huaraz-login-panoramic-bg {
+  position: fixed;
+  inset: 0;
+  background-image: url('/images/huaraz_login_bg.jpg'), url('/images/laguna69.jpg'), url('/images/banner_panoramic.jpg');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  transform: scale(1.02);
+  z-index: 1;
+}
+
+/* Viñeta sutil cinemática */
+.huaraz-login-vignette {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at 75% 50%, rgba(2, 6, 23, 0.05) 0%, rgba(2, 6, 23, 0.28) 100%),
+              linear-gradient(180deg, rgba(3, 10, 24, 0.12) 0%, rgba(3, 10, 24, 0.32) 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Contenedor Principal (2 Columnas) */
+.huaraz-login-container {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 1220px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 50px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   COLUMNA IZQUIERDA: Marca & Identidad
+   ========================================================================== */
+
+.huaraz-brand-showcase {
+  flex: 1;
+  max-width: 580px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+/* Logo Oficial Emblemático */
+.huaraz-emblem-wrapper {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  padding: 5px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.45) 0%, rgba(255, 255, 255, 0.25) 60%, rgba(255, 255, 255, 0.95) 100%);
+  border: 3.5px solid rgba(255, 255, 255, 0.95);
+  box-shadow: 0 16px 40px rgba(0, 70, 160, 0.45), 0 0 35px rgba(56, 189, 248, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 22px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.huaraz-emblem-wrapper:hover {
+  transform: scale(1.03) rotate(1deg);
+  box-shadow: 0 20px 48px rgba(0, 70, 160, 0.55), 0 0 45px rgba(56, 189, 248, 0.65);
+}
+
+.huaraz-emblem-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Título de Marca */
+.huaraz-brand-title {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 3.6rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  line-height: 1.02;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 20, 50, 0.7);
+  margin: 0 0 8px 0;
+}
+
+.huaraz-brand-title .brand-accent-text {
+  color: #38bdf8;
+  text-shadow: 0 0 25px rgba(56, 189, 248, 0.85), 0 4px 20px rgba(0, 20, 50, 0.7);
+}
+
+/* Subtítulo */
+.huaraz-brand-subtitle {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: #ffffff;
+  text-shadow: 0 3px 12px rgba(0, 20, 50, 0.6);
+  margin: 0 0 12px 0;
+}
+
+/* Arco cian de acento */
+.huaraz-brand-arc {
+  width: 250px;
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #38bdf8 0%, #00d2ff 60%, transparent 100%);
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.9);
+  margin-bottom: 14px;
+}
+
+/* Eslogan Cursivo */
+.huaraz-brand-slogan {
+  font-family: 'Dancing Script', cursive, serif;
+  font-size: 2.75rem;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.15;
+  margin: 0 0 6px 0;
+  text-shadow: 0 3px 14px rgba(0, 20, 50, 0.8);
+}
+
+/* Arco de acento dorado */
+.huaraz-slogan-gold-accent {
+  width: 240px;
+  height: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(90deg, #38bdf8 0%, #f59e0b 55%, #fbbf24 85%, transparent 100%);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.75);
+  margin-bottom: 32px;
+}
+
+/* Fila de Insignias / Pills */
+.huaraz-badges-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.huaraz-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 16px 6px 7px;
+  background: rgba(8, 25, 48, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid rgba(255, 255, 255, 0.32);
+  border-radius: 9999px;
+  box-shadow: 0 8px 20px rgba(0, 15, 35, 0.3);
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.huaraz-badge-pill:hover {
+  transform: translateY(-2px);
+  border-color: rgba(56, 189, 248, 0.7);
+}
+
+.badge-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.badge-text {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   COLUMNA DERECHA: Tarjeta Frosted Glassmorphism
+   ========================================================================== */
+
+.huaraz-glass-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255, 255, 255, 0.26);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1.8px solid rgba(255, 255, 255, 0.65);
+  border-radius: 28px;
+  box-shadow: 0 25px 65px rgba(0, 35, 75, 0.32),
+              inset 0 2px 4px rgba(255, 255, 255, 0.9),
+              inset 0 -2px 4px rgba(255, 255, 255, 0.2);
+  padding: 30px 28px;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 10;
+}
+
+/* Selector de Rol Superior (Tabs) */
+.huaraz-role-tabs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.huaraz-role-tab-btn {
+  border-radius: 18px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  border: none;
+  font-family: inherit;
+  text-align: left;
+}
+
+/* Pestaña Inactiva */
+.huaraz-role-tab-btn.tab-inactive {
+  background: rgba(255, 255, 255, 0.42);
+  border: 1.5px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 4px 12px rgba(0, 20, 50, 0.08);
+}
+
+.huaraz-role-tab-btn.tab-inactive:hover {
+  background: rgba(255, 255, 255, 0.58);
+  border-color: rgba(255, 255, 255, 0.85);
+  transform: translateY(-1px);
+}
+
+.huaraz-role-tab-btn.tab-inactive .tab-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0f172a;
+  flex-shrink: 0;
+}
+
+.huaraz-role-tab-btn.tab-inactive .tab-title {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.2;
+  display: block;
+}
+
+.huaraz-role-tab-btn.tab-inactive .tab-desc {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: #334155;
+  display: block;
+}
+
+/* Pestaña Activa */
+.huaraz-role-tab-btn.tab-active {
+  background: linear-gradient(135deg, #0284c7 0%, #1e40af 100%);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 8px 24px rgba(2, 132, 199, 0.48);
+  color: #ffffff;
+}
+
+.huaraz-role-tab-btn.tab-active .tab-icon-wrap {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.24);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.huaraz-role-tab-btn.tab-active .tab-title {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.2;
+  display: block;
+}
+
+.huaraz-role-tab-btn.tab-active .tab-desc {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  display: block;
+}
+
+/* Encabezado del Formulario */
+.huaraz-card-header {
+  margin-bottom: 20px;
+}
+
+.heading-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.heading-mountain-icon {
+  color: #0284c7;
+  filter: drop-shadow(0 2px 4px rgba(2, 132, 199, 0.25));
+}
+
+.heading-title-text {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #0a2540;
+  letter-spacing: -0.5px;
+  margin: 0;
+}
+
+.heading-subtitle-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.heading-line {
+  flex: 1;
+  height: 1px;
+  background: rgba(100, 116, 139, 0.35);
+  max-width: 44px;
+}
+
+.heading-subtitle-text {
+  font-size: 0.86rem;
+  color: #334155;
+  font-weight: 500;
+}
+
+/* Feedback Banner */
+.huaraz-feedback-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.huaraz-feedback-banner.success {
+  background: rgba(34, 197, 94, 0.16);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #15803d;
+}
+
+.huaraz-feedback-banner.info {
+  background: rgba(2, 132, 199, 0.16);
+  border: 1px solid rgba(2, 132, 199, 0.4);
+  color: #0369a1;
+}
+
+/* Formulario */
+.huaraz-login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Input Pills */
+.huaraz-input-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 9999px;
+  padding: 12px 18px;
+  margin-bottom: 14px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 30, 60, 0.04);
+  transition: all 0.2s ease;
+}
+
+.huaraz-input-pill:focus-within {
+  border-color: #0284c7;
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.22), inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.input-pill-icon {
+  color: #0284c7;
+  flex-shrink: 0;
+}
+
+.input-pill-field {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #0f172a;
+  outline: none;
+}
+
+.input-pill-field::placeholder {
+  color: #64748b;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
+.input-pill-eye-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+  transition: color 0.2s ease;
+}
+
+.input-pill-eye-btn:hover {
+  color: #0284c7;
+}
+
+/* Fila de opciones: Recordarme y Olvidaste */
+.huaraz-options-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+  padding: 0 4px;
+}
+
+.huaraz-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.huaraz-checkbox-input {
+  width: 17px;
+  height: 17px;
+  border-radius: 4px;
+  accent-color: #0284c7;
+  cursor: pointer;
+}
+
+.huaraz-forgot-link {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #1e293b;
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.huaraz-forgot-link:hover {
+  color: #0284c7;
+  text-decoration: underline;
+}
+
+/* Botón Principal Ingresar */
+.huaraz-btn-submit {
+  width: 100%;
+  background: linear-gradient(90deg, #00b4d8 0%, #0077b6 50%, #0056b3 100%);
+  color: #ffffff;
+  border-radius: 9999px;
+  padding: 13px 24px;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(0, 119, 182, 0.42);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: inherit;
+}
+
+.huaraz-btn-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0, 119, 182, 0.55);
+  filter: brightness(1.06);
+}
+
+.huaraz-btn-submit:active {
+  transform: translateY(0);
+}
+
+.btn-arrow-icon {
+  transition: transform 0.2s ease;
+}
+
+.huaraz-btn-submit:hover .btn-arrow-icon {
+  transform: translateX(3px);
+}
+
+/* Separador */
+.huaraz-card-divider {
+  text-align: center;
+  margin: 16px 0 12px 0;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* Botón Registrarse */
+.huaraz-btn-register {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.42);
+  border: 1.6px solid rgba(255, 255, 255, 0.75);
+  color: #0f172a;
+  border-radius: 9999px;
+  padding: 12px 24px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 20, 50, 0.06);
+  transition: all 0.25s ease;
+  font-family: inherit;
+}
+
+.huaraz-btn-register:hover {
+  background: rgba(255, 255, 255, 0.65);
+  border-color: rgba(255, 255, 255, 0.95);
+  transform: translateY(-1px);
+}
+
+/* Cajón Interactivo de Turistas */
+.huaraz-tourist-drawer {
+  margin-top: 14px;
+  background: rgba(255, 255, 255, 0.65);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 18px;
+  padding: 12px;
+  box-shadow: 0 8px 24px rgba(0, 20, 50, 0.1);
+  animation: fadeInDrawer 0.25s ease;
+}
+
+@keyframes fadeInDrawer {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding: 0 4px;
+}
+
+.drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+.drawer-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.drawer-tourists-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.drawer-tourist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawer-tourist-item:hover {
+  background: #ffffff;
+  border-color: #0284c7;
+  transform: translateX(2px);
+}
+
+.drawer-tourist-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.drawer-tourist-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tourist-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.tourist-role {
+  font-size: 0.68rem;
+  color: #64748b;
+}
+
+.tourist-select-chip {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #0284c7;
+}
+
+/* Pie de la tarjeta */
+.huaraz-card-footer {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+.footer-mountain-icon {
+  color: #0284c7;
+}
+
+/* ==========================================================================
+   RESPONSIVIDAD
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .huaraz-login-container {
+    flex-direction: column;
+    text-align: center;
+    gap: 36px;
+  }
+
+  .huaraz-brand-showcase {
+    align-items: center;
+    text-align: center;
+  }
+
+  .huaraz-brand-arc,
+  .huaraz-slogan-gold-accent {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .huaraz-badges-row {
+    justify-content: center;
+  }
+
+  .huaraz-brand-title {
+    font-size: 2.8rem;
+  }
+
+  .huaraz-brand-slogan {
+    font-size: 2.2rem;
+  }
+
+  .huaraz-glass-card {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 540px) {
+  .huaraz-login-universe {
+    padding: 24px 16px;
+  }
+
+  .huaraz-emblem-wrapper {
+    width: 140px;
+    height: 140px;
+  }
+
+  .huaraz-brand-title {
+    font-size: 2.2rem;
+  }
+
+  .huaraz-brand-subtitle {
+    font-size: 1.05rem;
+    letter-spacing: 1.5px;
+  }
+
+  .huaraz-brand-slogan {
+    font-size: 1.8rem;
+  }
+
+  .huaraz-glass-card {
+    padding: 22px 18px;
+    border-radius: 22px;
+  }
+
+  .huaraz-role-tabs-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Header & Modal Logout Buttons */
+.header-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 9999px;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: #fca5a5;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.header-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.footer-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.footer-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+  border-color: #ef4444;
+  color: #ffffff;
+}
+
+
+
+/* ========================================================= */
+/* PANTALLA DE LOGIN INICIAL (ROLES ADMIN Y USUARIO)         */
+/* ========================================================= */
+
 .login-page-wrapper {
   position: relative;
   min-height: 100vh;

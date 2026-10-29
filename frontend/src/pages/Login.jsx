@@ -1,239 +1,339 @@
 import React, { useState } from 'react';
 import {
   ShieldCheck,
-  Compass,
-  Lock,
-  Mail,
-  ArrowRight,
-  Sparkles,
+  User,
+  UserPlus,
   Mountain,
-  Users,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  Camera,
   CheckCircle2,
-  CalendarCheck,
-  Zap,
-  Info
+  X,
+  Compass,
+  Sparkles
 } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, DEMO_CLIENTS } from '../context/AuthContext';
 
 export default function Login() {
-  const { loginAsAdmin, loginAsUser, demoClients, loginWithCredentials } = useAuth();
+  const { loginAsAdmin, loginAsUser } = useAuth();
   const [selectedRole, setSelectedRole] = useState('admin'); // 'admin' | 'usuario'
-  const [selectedClient, setSelectedClient] = useState(demoClients[0]);
-  const [adminEmail, setAdminEmail] = useState('admin@huaraztours.com');
-  const [adminPassword, setAdminPassword] = useState('admin123');
-  const [userEmail, setUserEmail] = useState('');
-  const [userPassword, setUserPassword] = useState('');
+  const [email, setEmail] = useState('admin@huaraztours.com');
+  const [password, setPassword] = useState('admin123');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [feedback, setFeedback] = useState(null);
+  const [showTouristDrawer, setShowTouristDrawer] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(DEMO_CLIENTS[0]);
 
-  const handleAdminSubmit = (e) => {
-    e.preventDefault();
-    const res = loginAsAdmin();
+  // Selección de rol (Administrador vs Usuario / Turista)
+  const handleRoleChange = (role) => {
+    setSelectedRole(role);
+    setFeedback(null);
+    if (role === 'admin') {
+      setEmail('admin@huaraztours.com');
+      setPassword('admin123');
+      setShowTouristDrawer(false);
+    } else {
+      setEmail(selectedClient ? selectedClient.correo : 'maria.lopez@email.com');
+      setPassword('turista123');
+    }
+  };
+
+  // Selección rápida de perfil de turista
+  const handleSelectTourist = (client) => {
+    setSelectedClient(client);
+    setEmail(client.correo);
+    setPassword('turista123');
+    setSelectedRole('usuario');
+    setShowTouristDrawer(false);
+    const res = loginAsUser(client);
     setFeedback({ type: 'success', text: res.message });
   };
 
-  const handleUserSubmit = (e) => {
+  // Envío del formulario
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const res = loginAsUser(selectedClient);
-    setFeedback({ type: 'success', text: res.message });
+    if (selectedRole === 'admin') {
+      const res = loginAsAdmin();
+      setFeedback({ type: 'success', text: res.message });
+    } else {
+      const matched = DEMO_CLIENTS.find((c) => c.correo.toLowerCase() === email.toLowerCase());
+      const res = loginAsUser(matched || selectedClient);
+      setFeedback({ type: 'success', text: res.message });
+    }
+  };
+
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    setFeedback({
+      type: 'info',
+      text: selectedRole === 'admin'
+        ? 'Credenciales Demo Administrador: admin@huaraztours.com / admin123'
+        : 'Credenciales Demo Turista: ' + (selectedClient?.correo || 'maria.lopez@email.com') + ' / turista123'
+    });
   };
 
   return (
-    <div className="login-page-wrapper">
-      {/* Fondo panorámico con superposición cinemática */}
-      <div className="login-panoramic-bg" />
-      <div className="login-vignette-overlay" />
+    <div className="huaraz-login-universe">
+      {/* Fondo Panorámico de la Cordillera Blanca */}
+      <div className="huaraz-login-panoramic-bg" />
+      <div className="huaraz-login-vignette" />
 
-      {/* Contenedor Central */}
-      <div className="login-card-container">
-        {/* Logo y Encabezado de la Marca */}
-        <div className="login-brand-header">
-          <div className="login-logo-circle">
+      {/* Contenedor Principal (2 Columnas) */}
+      <div className="huaraz-login-container">
+        
+        {/* COLUMNA IZQUIERDA: Marca & Identidad */}
+        <div className="huaraz-brand-showcase">
+          {/* Logo Oficial de Huaraz Tours */}
+          <div className="huaraz-emblem-wrapper">
             <img
               src="/images/logo-huaraz-tours.png"
-              alt="Huaraz Tours"
-              className="login-brand-img"
+              alt="Huaraz Tours Logo"
+              className="huaraz-emblem-img"
             />
           </div>
-          <div className="login-brand-text">
-            <h1 className="login-title">Huaraz Tours</h1>
-            <p className="login-tagline">Naturaleza que te inspira • Portal de Acceso</p>
+
+          {/* Título de Marca */}
+          <h1 className="huaraz-brand-title">
+            HUARAZ <span className="brand-accent-text">TOURS</span>
+          </h1>
+
+          {/* Subtítulo */}
+          <h2 className="huaraz-brand-subtitle">
+            NATURALEZA QUE TE INSPIRA
+          </h2>
+
+          {/* Arco cian de acento */}
+          <div className="huaraz-brand-arc" />
+
+          {/* Eslogan cursivo elegante */}
+          <p className="huaraz-brand-slogan">
+            Descubre, explora y disfruta
+          </p>
+
+          {/* Arco de acento dorado/cian */}
+          <div className="huaraz-slogan-gold-accent" />
+
+          {/* Insignias / Pills de características */}
+          <div className="huaraz-badges-row">
+            <div className="huaraz-badge-pill">
+              <div className="badge-icon-circle">
+                <Mountain size={18} strokeWidth={2.2} />
+              </div>
+              <div className="badge-text">
+                <span>Rutas</span>
+                <span>Increíbles</span>
+              </div>
+            </div>
+
+            <div className="huaraz-badge-pill">
+              <div className="badge-icon-circle">
+                <Camera size={18} strokeWidth={2.2} />
+              </div>
+              <div className="badge-text">
+                <span>Paisajes</span>
+                <span>Únicos</span>
+              </div>
+            </div>
+
+            <div className="huaraz-badge-pill">
+              <div className="badge-icon-circle">
+                <ShieldCheck size={18} strokeWidth={2.2} />
+              </div>
+              <div className="badge-text">
+                <span>Viaja</span>
+                <span>Seguro</span>
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Notificación de feedback si aplica */}
-        {feedback && (
-          <div className={`login-feedback-banner ${feedback.type}`}>
-            <CheckCircle2 size={16} />
-            <span>{feedback.text}</span>
+        {/* COLUMNA DERECHA: Tarjeta Glassmorphism */}
+        <div className="huaraz-glass-card">
+          
+          {/* Selector de Rol Superior (Tabs) */}
+          <div className="huaraz-role-tabs-grid">
+            <button
+              type="button"
+              className={`huaraz-role-tab-btn ${selectedRole === 'admin' ? 'tab-active' : 'tab-inactive'}`}
+              onClick={() => handleRoleChange('admin')}
+            >
+              <div className="tab-icon-wrap">
+                <ShieldCheck size={18} strokeWidth={2.3} />
+              </div>
+              <div className="tab-text-wrap">
+                <span className="tab-title">Administrador</span>
+                <span className="tab-desc">Gestión & Control</span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              className={`huaraz-role-tab-btn ${selectedRole === 'usuario' ? 'tab-active' : 'tab-inactive'}`}
+              onClick={() => handleRoleChange('usuario')}
+            >
+              <div className="tab-icon-wrap">
+                <User size={18} strokeWidth={2.3} />
+              </div>
+              <div className="tab-text-wrap">
+                <span className="tab-title">Usuario / Turista</span>
+                <span className="tab-desc">Exploración & Reservas</span>
+              </div>
+            </button>
           </div>
-        )}
 
-        {/* Selector Visual de Rol Principal */}
-        <div className="login-role-selector-tabs">
-          <button
-            type="button"
-            className={`login-role-tab ${selectedRole === 'admin' ? 'active-admin' : ''}`}
-            onClick={() => { setSelectedRole('admin'); setFeedback(null); }}
-          >
-            <ShieldCheck size={18} className="role-tab-icon" />
-            <div className="role-tab-info">
-              <span className="role-tab-title">Administrador</span>
-              <span className="role-tab-sub">Gestión & Control Total</span>
+          {/* Encabezado del Formulario */}
+          <div className="huaraz-card-header">
+            <div className="heading-title-row">
+              <Mountain size={28} strokeWidth={2.2} className="heading-mountain-icon" />
+              <h2 className="heading-title-text">Iniciar sesión</h2>
             </div>
-          </button>
-
-          <button
-            type="button"
-            className={`login-role-tab ${selectedRole === 'usuario' ? 'active-user' : ''}`}
-            onClick={() => { setSelectedRole('usuario'); setFeedback(null); }}
-          >
-            <Compass size={18} className="role-tab-icon" />
-            <div className="role-tab-info">
-              <span className="role-tab-title">Usuario / Turista</span>
-              <span className="role-tab-sub">Exploración & Reservas</span>
+            <div className="heading-subtitle-row">
+              <span className="heading-line" />
+              <span className="heading-subtitle-text">Accede a tu cuenta para continuar</span>
+              <span className="heading-line" />
             </div>
-          </button>
-        </div>
+          </div>
 
-        {/* Panel para Administrador */}
-        {selectedRole === 'admin' && (
-          <form className="login-role-form" onSubmit={handleAdminSubmit}>
-            <div className="role-privileges-box box-admin-privileges">
-              <div className="privileges-title">
-                <Sparkles size={14} />
-                <span>Privilegios de Administrador:</span>
-              </div>
-              <ul className="privileges-list">
-                <li>✓ Gestión integral (CRUD) de rutas turísticas</li>
-                <li>✓ Auditoría general de reservas y control de clientes</li>
-                <li>✓ Reportes estadísticos, gráficos y configuración</li>
-              </ul>
+          {/* Feedback de estado */}
+          {feedback && (
+            <div className={`huaraz-feedback-banner ${feedback.type}`}>
+              <CheckCircle2 size={16} />
+              <span>{feedback.text}</span>
+            </div>
+          )}
+
+          {/* Formulario de Login */}
+          <form onSubmit={handleSubmit} className="huaraz-login-form">
+            {/* Input de Correo */}
+            <div className="huaraz-input-pill">
+              <Mail size={18} strokeWidth={2.2} className="input-pill-icon" />
+              <input
+                type="email"
+                placeholder="Correo Electrónico"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="input-pill-field"
+                required
+              />
             </div>
 
-            <div className="login-field-group">
-              <label className="login-field-label">Correo Administrativo</label>
-              <div className="login-input-wrap">
-                <Mail size={16} className="login-input-icon" />
+            {/* Input de Contraseña */}
+            <div className="huaraz-input-pill">
+              <Lock size={18} strokeWidth={2.2} className="input-pill-icon" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Contraseña"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="input-pill-field"
+                required
+              />
+              <button
+                type="button"
+                className="input-pill-eye-btn"
+                onClick={() => setShowPassword(!showPassword)}
+                aria-label="Ver u ocultar contraseña"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
+
+            {/* Opciones: Recordarme / Olvidaste contraseña */}
+            <div className="huaraz-options-row">
+              <label className="huaraz-checkbox-label">
                 <input
-                  type="email"
-                  className="login-text-input"
-                  value={adminEmail}
-                  onChange={(e) => setAdminEmail(e.target.value)}
-                  placeholder="admin@huaraztours.com"
-                  required
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="huaraz-checkbox-input"
                 />
-              </div>
+                <span>Recordarme</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="huaraz-forgot-link"
+              >
+                ¿Olvidaste tu contraseña?
+              </button>
             </div>
 
-            <div className="login-field-group">
-              <label className="login-field-label">Contraseña</label>
-              <div className="login-input-wrap">
-                <Lock size={16} className="login-input-icon" />
-                <input
-                  type="password"
-                  className="login-text-input"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
+            {/* Botón Principal Ingresar */}
+            <button type="submit" className="huaraz-btn-submit">
+              <ArrowRight size={20} strokeWidth={2.4} className="btn-arrow-icon" />
+              <span>Ingresar</span>
+            </button>
+
+            {/* Separador de Registro */}
+            <div className="huaraz-card-divider">
+              ¿No tienes una cuenta?
             </div>
 
-            <button type="submit" className="login-submit-action-btn btn-admin-glow">
-              <span>Ingresar como Administrador</span>
-              <ArrowRight size={17} />
+            {/* Botón Registrarse / Explorar como Turista */}
+            <button
+              type="button"
+              className="huaraz-btn-register"
+              onClick={() => {
+                setSelectedRole('usuario');
+                setShowTouristDrawer(!showTouristDrawer);
+              }}
+            >
+              <UserPlus size={18} strokeWidth={2.2} />
+              <span>Registrarse</span>
             </button>
           </form>
-        )}
 
-        {/* Panel para Turista / Usuario */}
-        {selectedRole === 'usuario' && (
-          <form className="login-role-form" onSubmit={handleUserSubmit}>
-            <div className="role-privileges-box box-user-privileges">
-              <div className="privileges-title">
-                <Compass size={14} />
-                <span>Experiencia de Usuario / Turista:</span>
+          {/* Cajón interactivo para seleccionar o probar turistas demo */}
+          {showTouristDrawer && (
+            <div className="huaraz-tourist-drawer">
+              <div className="drawer-header">
+                <span className="drawer-title">
+                  <Compass size={15} /> Selecciona un perfil de Turista:
+                </span>
+                <button
+                  type="button"
+                  className="drawer-close-btn"
+                  onClick={() => setShowTouristDrawer(false)}
+                >
+                  <X size={14} />
+                </button>
               </div>
-              <ul className="privileges-list">
-                <li>✓ Catálogo de excursiones en la Cordillera Blanca</li>
-                <li>✓ Reservas de cupos en vivo y confirmación inmediata</li>
-                <li>✓ Panel personal exclusivo de "Mis Reservas"</li>
-              </ul>
-            </div>
-
-            {/* Selector de Cliente / Turista de prueba */}
-            <div className="login-field-group">
-              <label className="login-field-label">Selecciona el perfil de Turista:</label>
-              <div className="login-client-selector-grid">
-                {demoClients.map((client) => {
-                  const isSelected = selectedClient.id === client.id;
-                  return (
-                    <div
-                      key={client.id}
-                      className={`login-client-card ${isSelected ? 'client-card-selected' : ''}`}
-                      onClick={() => setSelectedClient(client)}
-                    >
-                      <img
-                        src={client.avatar}
-                        alt={client.nombre}
-                        className="login-client-avatar"
-                      />
-                      <div className="login-client-text">
-                        <span className="client-name">{client.nombre}</span>
-                        <span className="client-dni">DNI: {client.dni}</span>
-                        <span className="client-badge">{client.categoria || 'Turista'}</span>
-                      </div>
-                      {isSelected && (
-                        <div className="client-check-indicator">
-                          <CheckCircle2 size={16} />
-                        </div>
-                      )}
+              <div className="drawer-tourists-list">
+                {DEMO_CLIENTS.map((client) => (
+                  <div
+                    key={client.id}
+                    className="drawer-tourist-item"
+                    onClick={() => handleSelectTourist(client)}
+                  >
+                    <img
+                      src={client.avatar}
+                      alt={client.nombre}
+                      className="drawer-tourist-avatar"
+                    />
+                    <div className="drawer-tourist-info">
+                      <span className="tourist-name">{client.nombre}</span>
+                      <span className="tourist-role">{client.categoria || 'Turista'} • DNI: {client.dni}</span>
                     </div>
-                  );
-                })}
+                    <span className="tourist-select-chip">Entrar ➜</span>
+                  </div>
+                ))}
               </div>
             </div>
+          )}
 
-            <button type="submit" className="login-submit-action-btn btn-user-glow">
-              <span>Ingresar como Turista ({selectedClient.nombre.split(' ')[0]})</span>
-              <ArrowRight size={17} />
-            </button>
-          </form>
-        )}
-
-        {/* Accesos Rápidos con 1 Clic */}
-        <div className="login-quick-access-footer">
-          <div className="quick-access-label">
-            <Zap size={14} className="zap-icon" />
-            <span>Accesos Rápidos Demo (1 Clic):</span>
+          {/* Pie de la tarjeta */}
+          <div className="huaraz-card-footer">
+            <Mountain size={15} strokeWidth={2.2} className="footer-mountain-icon" />
+            <span>Cordillera Blanca • Áncash • Perú</span>
           </div>
-          <div className="quick-access-buttons">
-            <button
-              type="button"
-              className="quick-btn-admin"
-              onClick={() => loginAsAdmin()}
-            >
-              <ShieldCheck size={14} />
-              <span>Entrar como Admin</span>
-            </button>
 
-            <button
-              type="button"
-              className="quick-btn-user"
-              onClick={() => loginAsUser(demoClients[0])}
-            >
-              <Compass size={14} />
-              <span>Entrar como Turista (María)</span>
-            </button>
-          </div>
         </div>
 
-        {/* Pie de página informativo */}
-        <div className="login-card-bottom-bar">
-          <Mountain size={14} className="bottom-mount-icon" />
-          <span>Huaraz Tours • Cordillera Blanca, Áncash - Perú</span>
-        </div>
       </div>
     </div>
   );
