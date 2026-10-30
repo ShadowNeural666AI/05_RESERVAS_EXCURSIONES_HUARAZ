@@ -308,3 +308,4 @@ exports.getActividadAdmin = async (req, res) => {
     res.status(500).json({ error: 'Error al obtener actividad administrativa', details: error.message });
   }
 };
+

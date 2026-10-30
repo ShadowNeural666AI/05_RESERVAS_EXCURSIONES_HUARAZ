@@ -9,6 +9,7 @@ export default function Header() {
   const { user, isAdmin, openCredentialModal, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
 
+  const isClientes = location.pathname === '/clientes';
   const isReportes = location.pathname === '/reportes';
   const isReservas = location.pathname === '/reservas';
   const isConfiguracion = location.pathname === '/configuracion';
@@ -18,10 +19,11 @@ export default function Header() {
   let searchPlaceholder = isAdmin
     ? 'Buscar rutas, destinos, clientes...'
     : 'Explorar excursiones, lagunas, nevados...';
+  if (isClientes) searchPlaceholder = 'Buscar clientes, rutas...';
   if (isReportes) searchPlaceholder = 'Buscar reportes, rutas, clientes...';
   if (isReservas) searchPlaceholder = isAdmin ? 'Buscar clientes, rutas, reservas...' : 'Buscar en mis reservas...';
 
-  const notificationCount = (isReportes || isReservas) ? 3 : 1;
+  const notificationCount = isClientes ? 2 : ((isReportes || isReservas) ? 3 : 1);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -93,7 +95,7 @@ export default function Header() {
           <div className="header-user-text-col">
             <span className="user-name">{user.nombre}</span>
             <span className="user-role-micro-label">
-              {isAdmin ? '🛡️ Administrador' : '🎒 Turista'}
+              {isAdmin ? 'Administrador' : 'Turista'}
             </span>
           </div>
           <ChevronDown size={14} className="user-chevron" />
@@ -107,7 +109,7 @@ export default function Header() {
           title="Cerrar sesión"
         >
           <LogOut size={16} />
-          <span>Salir</span>
+          <span>Cerrar Sesión</span>
         </button>
       </div>
     </header>

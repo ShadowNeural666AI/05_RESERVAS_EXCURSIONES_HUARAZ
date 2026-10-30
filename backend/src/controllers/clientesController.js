@@ -33,6 +33,29 @@ exports.getAllClientes = async (req, res) => {
   }
 };
 
+exports.getClienteById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query('SELECT * FROM clientes WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Cliente no encontrado' });
+    }
+    const cliente = rows[0];
+    const [reservas] = await pool.query(
+      `SELECT r.*, rt.nombre AS ruta_nombre, rt.imagen AS imagen_url, rt.ubicacion 
+       FROM reservas r 
+       LEFT JOIN rutas rt ON r.ruta_id = rt.id 
+       WHERE r.dni = ? OR r.correo = ? 
+       ORDER BY r.created_at DESC`,
+      [cliente.dni, cliente.correo]
+    );
+    return res.status(200).json({ cliente, reservas });
+  } catch (err) {
+    console.error('Error fetching cliente details:', err);
+    return res.status(500).json({ error: 'Error al obtener detalle de cliente' });
+  }
+};
+
 exports.createCliente = async (req, res) => {
   try {
     const { nombre, dni, telefono, correo } = req.body;
@@ -56,6 +79,37 @@ exports.createCliente = async (req, res) => {
   } catch (err) {
     console.error('Error creating cliente in MySQL:', err);
     return res.status(500).json({ error: 'Error al registrar cliente' });
+  }
+};
+
+exports.updateCliente = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, dni, telefono, correo } = req.body;
+    if (!nombre || !dni || !telefono || !correo) {
+      return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+    }
+
+    const [existing] = await pool.query('SELECT id FROM clientes WHERE dni = ? AND id != ?', [dni, id]);
+    if (existing.length > 0) {
+      return res.status(400).json({ error: 'Ya existe otro cliente con este DNI' });
+    }
+
+    await pool.query(
+      'UPDATE clientes SET nombre = ?, dni = ?, telefono = ?, correo = ? WHERE id = ?',
+      [nombre, dni, telefono, correo, id]
+    );
+
+    await pool.query(
+      'UPDATE usuarios SET nombre = ?, dni = ?, telefono = ?, correo = ? WHERE id = ? OR dni = ? OR correo = ?',
+      [nombre, dni, telefono, correo, id, dni, correo]
+    );
+
+    const [updated] = await pool.query('SELECT * FROM clientes WHERE id = ?', [id]);
+    return res.status(200).json(updated[0]);
+  } catch (err) {
+    console.error('Error updating cliente in MySQL:', err);
+    return res.status(500).json({ error: 'Error al actualizar cliente' });
   }
 };
 

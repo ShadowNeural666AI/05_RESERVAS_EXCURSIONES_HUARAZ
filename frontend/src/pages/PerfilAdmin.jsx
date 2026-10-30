@@ -704,3 +704,4 @@ export default function PerfilAdmin({ user }) {
     </div>
   );
 }
+

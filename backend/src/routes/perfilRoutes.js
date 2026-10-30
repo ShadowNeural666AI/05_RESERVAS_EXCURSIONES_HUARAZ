@@ -24,3 +24,4 @@ postToggle = router.post('/:id/favoritos', perfilController.toggleRutaFavorita);
 router.get('/admin/actividad', perfilController.getActividadAdmin);
 
 module.exports = router;
+

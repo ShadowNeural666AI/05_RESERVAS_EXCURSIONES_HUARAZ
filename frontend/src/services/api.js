@@ -99,6 +99,8 @@ export const api = {
     const queryString = query.toString();
     return request(`/clientes${queryString ? `?${queryString}` : ''}`);
   },
+  getClienteById: (id) => request(`/clientes/${id}`),
   createCliente: (data) => request('/clientes', { method: 'POST', body: JSON.stringify(data) }),
+  updateCliente: (id, data) => request(`/clientes/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteCliente: (id) => request(`/clientes/${id}`, { method: 'DELETE' }),
 };
