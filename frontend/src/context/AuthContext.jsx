@@ -123,6 +123,28 @@ export function AuthProvider({ children }) {
     }
   }, [isAuthenticated]);
 
+  const updateUser = (updatedData) => {
+    setCurrentUser((prev) => {
+      const merged = { ...prev, ...updatedData };
+      try {
+        localStorage.setItem('huaraz_current_user', JSON.stringify(merged));
+      } catch (e) {
+        console.error('Error saving user to localStorage:', e);
+      }
+      return merged;
+    });
+
+    setRegisteredUsers((prev) => {
+      const next = prev.map((u) => (u.id === updatedData.id ? { ...u, ...updatedData } : u));
+      try {
+        localStorage.setItem('huaraz_registered_users', JSON.stringify(next));
+      } catch (e) {
+        console.error(e);
+      }
+      return next;
+    });
+  };
+
   const loginAsAdmin = () => {
     setCurrentUser(PRESET_USERS.admin);
     setIsAuthenticated(true);
@@ -295,6 +317,7 @@ export function AuthProvider({ children }) {
     demoClients: registeredUsers,
     registeredUsers,
     registerUser,
+    updateUser,
     loginAsAdmin,
     loginAsUser,
     logout,

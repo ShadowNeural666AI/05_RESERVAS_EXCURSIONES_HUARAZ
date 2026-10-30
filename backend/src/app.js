@@ -4,6 +4,7 @@ const cors = require('cors');
 const rutasRoutes = require('./routes/rutasRoutes');
 const reservasRoutes = require('./routes/reservasRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
+const perfilRoutes = require('./routes/perfilRoutes');
 const statsController = require('./controllers/statsController');
 
 const app = express();
@@ -24,6 +25,7 @@ app.use('/uploads', express.static(path.resolve(__dirname, '../uploads'), {
 app.use('/api/rutas', rutasRoutes);
 app.use('/api/reservas', reservasRoutes);
 app.use('/api/clientes', clientesRoutes);
+app.use('/api/perfil', perfilRoutes);
 app.get('/api/stats', statsController.getStats);
 app.get('/api/reportes', statsController.getReportes);
 app.get('/api/health', statsController.getHealth);

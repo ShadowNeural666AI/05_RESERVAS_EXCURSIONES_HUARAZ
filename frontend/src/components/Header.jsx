@@ -70,11 +70,11 @@ export default function Header() {
           <span className="bell-badge">{notificationCount}</span>
         </button>
 
-        {/* Badge de Perfil de Usuario (Clickable para abrir Perfil Detallado) */}
+        {/* Badge de Perfil de Usuario (Navega al Perfil del usuario que inició sesión) */}
         <div
           className="user-profile-badge"
-          onClick={openCredentialModal}
-          title="Haz clic para ver tu perfil de usuario"
+          onClick={() => navigate('/perfil')}
+          title="Haz clic para abrir tu perfil de usuario"
           role="button"
           tabIndex={0}
         >

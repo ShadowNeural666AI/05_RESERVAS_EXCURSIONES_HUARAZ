@@ -16,6 +16,7 @@ import ReservaDetalle from './pages/ReservaDetalle';
 import Clientes from './pages/Clientes';
 import Reportes from './pages/Reportes';
 import Configuracion from './pages/Configuracion';
+import Perfil from './pages/Perfil';
 
 function AppContent() {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -61,6 +62,7 @@ function AppContent() {
               path="/configuracion"
               element={isAdmin ? <Configuracion /> : <RestrictedAccess sectionName="Configuración de Agencia" />}
             />
+            <Route path="/perfil" element={<Perfil />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

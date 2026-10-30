@@ -1,20 +1,22 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Compass,
   CalendarCheck,
   Users,
   BarChart3,
-  Settings,
   Mountain,
+  User,
   ShieldCheck,
-  Sparkles,
-  RefreshCw
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar() {
-  const { user, isAdmin, isUser, openCredentialModal } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { user, isAdmin, isUser } = useAuth();
+  const isPerfilActive = location.pathname === '/perfil';
 
   return (
     <aside className="sidebar">
@@ -78,21 +80,26 @@ export default function Sidebar() {
               <BarChart3 size={19} />
               <span>Reportes</span>
             </NavLink>
-
-            <NavLink
-              to="/configuracion"
-              className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
-            >
-              <Settings size={19} />
-              <span>Configuración</span>
-            </NavLink>
           </>
         )}
+
+        {/* Acceso directo a Mi Perfil (para ambos roles: Administrador y Turista) */}
+        <NavLink
+          to="/perfil"
+          className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}
+        >
+          <User size={19} />
+          <span>{isAdmin ? 'Perfil Admin' : 'Mi Perfil'}</span>
+        </NavLink>
       </nav>
 
-      {/* Mini Widget de Perfil Activo */}
+      {/* Mini Widget de Perfil Activo que abre /perfil */}
       <div className="sidebar-role-widget">
-        <div className="role-widget-card" onClick={openCredentialModal} title="Ver mi perfil de usuario">
+        <div
+          className={`role-widget-card ${isPerfilActive ? 'widget-card-active' : ''}`}
+          onClick={() => navigate('/perfil')}
+          title="Haz clic para ver y editar tu perfil"
+        >
           <div className="role-widget-avatar-wrap">
             <img src={user.avatar} alt={user.nombre} className="role-widget-avatar" />
             <span className={`role-dot ${isAdmin ? 'dot-admin' : 'dot-user'}`}></span>
