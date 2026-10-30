@@ -11,6 +11,19 @@ const formatCurrentDateTime = () => {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 
+const getNextClienteId = async () => {
+  const [rows] = await pool.query('SELECT id FROM clientes');
+  let maxNum = 0;
+  for (const row of rows) {
+    const match = row.id.match(/^C-(\d+)$/i);
+    if (match) {
+      const num = parseInt(match[1], 10);
+      if (num > maxNum) maxNum = num;
+    }
+  }
+  return `C-${String(maxNum + 1).padStart(3, '0')}`;
+};
+
 const getNextReservaId = async () => {
   const [rows] = await pool.query('SELECT id FROM reservas');
   let maxNum = 0;
@@ -151,11 +164,19 @@ exports.createReserva = async (req, res) => {
     }
 
     // Upsert or register client
-    await pool.query(`
-      INSERT INTO clientes (id, nombre, dni, telefono, correo, reservas_count)
-      VALUES (?, ?, ?, ?, ?, 1)
-      ON DUPLICATE KEY UPDATE reservas_count = reservas_count + 1
-    `, [`C-${String(Math.floor(Math.random() * 900) + 100)}`, cliente, dni, telefono, correo]);
+    const [existingCliente] = await pool.query('SELECT id FROM clientes WHERE dni = ?', [dni]);
+    if (existingCliente.length > 0) {
+      await pool.query(
+        'UPDATE clientes SET reservas_count = reservas_count + 1, telefono = ?, correo = ? WHERE id = ?',
+        [telefono, correo, existingCliente[0].id]
+      );
+    } else {
+      const clienteId = await getNextClienteId();
+      await pool.query(`
+        INSERT INTO clientes (id, nombre, dni, telefono, correo, reservas_count)
+        VALUES (?, ?, ?, ?, ?, 1)
+      `, [clienteId, cliente, dni, telefono, correo]);
+    }
 
     const [created] = await pool.query('SELECT * FROM reservas WHERE id = ?', [newId]);
     const [updatedRuta] = await pool.query('SELECT * FROM rutas WHERE id = ?', [ruta.id]);

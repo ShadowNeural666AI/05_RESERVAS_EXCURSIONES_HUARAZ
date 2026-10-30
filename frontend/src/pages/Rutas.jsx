@@ -105,6 +105,22 @@ export default function Rutas() {
   const endIndex = Math.min(startIndex + itemsPerPage, rutas.length);
   const paginatedRutas = rutas.slice(startIndex, endIndex);
 
+  const getVisiblePages = () => {
+    if (totalPages <= 7) {
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+    const pages = [1];
+    if (currentPage > 3) pages.push('...');
+    const start = Math.max(2, currentPage - 1);
+    const end = Math.min(totalPages - 1, currentPage + 1);
+    for (let p = start; p <= end; p++) {
+      if (!pages.includes(p)) pages.push(p);
+    }
+    if (currentPage < totalPages - 2) pages.push('...');
+    if (!pages.includes(totalPages)) pages.push(totalPages);
+    return pages;
+  };
+
   return (
     <div className="rutas-page-view">
       {/* 1. Banner Panorámico Superior con Fotografía de Montaña y Eslogan */}
@@ -431,15 +447,19 @@ export default function Rutas() {
             <ChevronLeft size={16} />
           </button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              type="button"
-              className={`rutas-page-btn number ${currentPage === page ? 'active' : ''}`}
-              onClick={() => setCurrentPage(page)}
-            >
-              {page}
-            </button>
+          {getVisiblePages().map((page, idx) => (
+            page === '...' ? (
+              <span key={`ellipsis-${idx}`} className="rutas-page-ellipsis">...</span>
+            ) : (
+              <button
+                key={page}
+                type="button"
+                className={`rutas-page-btn number ${currentPage === page ? 'active' : ''}`}
+                onClick={() => setCurrentPage(page)}
+              >
+                {page}
+              </button>
+            )
           ))}
 
           <button

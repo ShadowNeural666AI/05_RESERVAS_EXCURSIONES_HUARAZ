@@ -13066,3 +13066,13 @@ body {
     width: 100%;
   }
 }
+
+.rutas-page-ellipsis {
+  color: #64748b;
+  font-weight: 700;
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.9rem;
+  user-select: none;
+}

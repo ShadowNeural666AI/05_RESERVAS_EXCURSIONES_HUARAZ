@@ -23,7 +23,7 @@ exports.getPerfil = async (req, res) => {
     res.json(user);
   } catch (error) {
     console.error('Error al obtener perfil:', error);
-    res.status(500).json({ error: 'Error al obtener datos del perfil', details: error.message });
+    res.status(500).json({ error: 'Error al obtener datos del perfil' });
   }
 };
 
@@ -132,7 +132,7 @@ exports.updatePerfil = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al actualizar perfil:', error);
-    res.status(500).json({ error: 'Error al actualizar datos del perfil', details: error.message });
+    res.status(500).json({ error: 'Error al actualizar datos del perfil' });
   }
 };
 
@@ -171,7 +171,7 @@ exports.cambiarPassword = async (req, res) => {
     res.json({ message: 'Contraseña cambiada exitosamente. Tu cuenta está segura.' });
   } catch (error) {
     console.error('Error al cambiar contraseña:', error);
-    res.status(500).json({ error: 'Error al cambiar la contraseña', details: error.message });
+    res.status(500).json({ error: 'Error al procesar el cambio de contraseña' });
   }
 };
 
@@ -201,7 +201,7 @@ exports.getHistorialReservas = async (req, res) => {
     res.json(reservas);
   } catch (error) {
     console.error('Error al obtener reservas del usuario:', error);
-    res.status(500).json({ error: 'Error al obtener historial de reservas', details: error.message });
+    res.status(500).json({ error: 'Error al obtener historial de reservas' });
   }
 };
 
@@ -229,7 +229,7 @@ exports.getRutasFavoritas = async (req, res) => {
     res.json(rutas);
   } catch (error) {
     console.error('Error al obtener rutas favoritas:', error);
-    res.status(500).json({ error: 'Error al obtener rutas favoritas', details: error.message });
+    res.status(500).json({ error: 'Error al obtener rutas favoritas' });
   }
 };
 
@@ -272,7 +272,7 @@ exports.toggleRutaFavorita = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al alternar favorita:', error);
-    res.status(500).json({ error: 'Error al actualizar favoritos', details: error.message });
+    res.status(500).json({ error: 'Error al actualizar favoritos' });
   }
 };
 
@@ -305,7 +305,7 @@ exports.getActividadAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error('Error al obtener actividad administrativa:', error);
-    res.status(500).json({ error: 'Error al obtener actividad administrativa', details: error.message });
+    res.status(500).json({ error: 'Error al obtener actividad administrativa' });
   }
 };
 
